@@ -22,6 +22,9 @@ public class CreateHtml {
         List<String> setList = Files.readAllLines(Paths.get(SETS_FILE));
         Map<String,String[]> filesMap = new HashMap<>();
         for (String set: setList){
+            if (set.startsWith("#")){
+                continue;
+            }
             String key = set.split(":")[0];
             String[] value = set.split(":")[1].trim().split("\\s*,\\s*");
             filesMap.put(key,value);
@@ -81,8 +84,16 @@ public class CreateHtml {
         fw.write(String.format("<td class=\"center\">%d</td>\n",i));
         fw.write("<td>\n");
         fw.write(String.format("<span>%s</span>\n",record.getRussian()));
+
+        if (!record.getRule().isEmpty()){
+            fw.write(String.format("<span class='support' tabindex=\"%d\" data-title='%s'>\n",10000+i,record.getRule()));
+            fw.write("<em>?</em>\n");
+            fw.write("</span>\n");
+        }
+
         fw.write(String.format("<input class='input-field' type=\"text\" placeholder=\"Введите перевод\" tabindex=\"%d\">\n",i));
         fw.write(String.format("<span class='tip'>%s</span>\n",record.getEnglish()));
+
         fw.write("<div class='check'> </div>\n");
         fw.write("</td>\n");
         fw.write("<td class=\"center\">\n");
@@ -104,6 +115,11 @@ public class CreateHtml {
         result.setRussian(row.getCell(1).getStringCellValue());
         result.setEnglish(row.getCell(2).getStringCellValue());
         result.setMp3("words/"+result.getWord()+"/"+row.getCell(3).getStringCellValue());
+        try{
+            result.setRule(row.getCell(4).getStringCellValue());
+        }catch (NullPointerException e){
+            result.setRule("");
+        }
         return result;
     }
 
@@ -116,7 +132,7 @@ public class CreateHtml {
             "    <title>English phrases</title>\n" +
             "    <script src=\"https://ajax.googleapis.com/ajax/libs/jquery/2.1.1/jquery.min.js\"></script>\n" +
             "\n" +
-            "    <link href=\"style.css\" rel=\"stylesheet\">\n" +
+            "    <link href=\"css/style.css\" rel=\"stylesheet\">\n" +
             "</head>\n" +
             "\n" +
             "<body>\n" +
@@ -131,7 +147,7 @@ public class CreateHtml {
             "        </tr>\n";
     public static final String STR_FOOTER = "    </table>\n" +
             "</body>\n" +
-            "<script src=\"scripts.js\"></script>\n" +
-            "\n" + "<script src=\"check-translate.js\"></script>" +
+            "<script src=\"js/scripts.js\"></script>\n" +
+            "\n" + "<script src=\"js/check-translate.js\"></script>" +
             "</html>";
 }

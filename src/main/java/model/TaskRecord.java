@@ -6,6 +6,7 @@ public class TaskRecord {
     private String russian;
     private String english;
     private String mp3;
+    private String rule;
 
 
     public String getRussian() {
@@ -38,5 +39,13 @@ public class TaskRecord {
 
     public void setWord(String word) {
         this.word = word;
+    }
+
+    public String getRule() {
+        return rule;
+    }
+
+    public void setRule(String rule) {
+        this.rule = rule;
     }
 }
