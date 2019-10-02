@@ -1,2 +1,3 @@
-weekdays: monday, tuesday, wednesday, thursday, friday, saturday, sunday
+#weekdays: monday, tuesday, wednesday, thursday, friday, saturday, sunday
 #envy: envy
+words_unit001: provide, revenue, base, employee, operate, specialize, subsidiary, competitor, produce, competitor, exporter

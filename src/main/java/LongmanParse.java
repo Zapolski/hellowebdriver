@@ -25,8 +25,9 @@ public class LongmanParse {
     private static By xpathExamples = By.xpath("//*[ (./*[@data-src-mp3]) and contains(@class,'EXAMPLE')]");
     private static By xpathMp3Link = By.xpath("./*[@data-src-mp3]");
 
-    private static String DATABASE_FILE = "d:/Test/English/info/data_(weekdays).xls";
-    private static String LIST_WORDS = "d:/Test/English/info/weekdays.txt";
+    private static String DATABASE_FILE = "d:\\Test\\English\\info\\words_unit001.xls";
+    private static String LIST_WORDS = "d:\\Test\\English\\info\\words_unit001.txt";
+    private static String DIR_WITH_SOUNDS = "d:/Test/English/words/";
 
     //private static String currentWord = "occur";
 
@@ -85,7 +86,7 @@ public class LongmanParse {
                     String mp3Url = mp3Link.getAttribute("data-src-mp3");
                     //Sound(mp3Url);
 
-                    String fileDir = "d:/Test/English/words/" + word + "/";
+                    String fileDir = DIR_WITH_SOUNDS + word + "/";
                     if (!new File(fileDir).exists()) {
                         new File(fileDir).mkdir();
                     }
