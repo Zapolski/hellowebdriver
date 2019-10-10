@@ -83,7 +83,7 @@ public class CreateHtml {
         fw.write("<tr>\n");
         fw.write(String.format("<td class=\"center\">%d</td>\n",i));
         fw.write("<td>\n");
-        fw.write(String.format("<span>%s</span>\n",record.getRussian()));
+        fw.write(String.format("<span class=\"question\">%s</span>\n",record.getRussian()));
 
         if (!record.getRule().isEmpty()){
             fw.write(String.format("<span class='support' tabindex=\"%d\" data-title='%s'>\n",10000+i,record.getRule()));
