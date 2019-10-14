@@ -97,7 +97,11 @@ public class CreateHtml {
         }
 
         fw.write(String.format("<input class='input-field' type=\"text\" placeholder=\"Введите перевод\" tabindex=\"%d\">\n",i));
-        fw.write(String.format("<span class='tip'>%s</span>\n",record.getEnglish()));
+
+        String english = record.getEnglish();
+        english = english.replaceAll("(\\[.*?\\])", "</span><span class='tip show'>$1</span><span class='tip hide'>");
+
+        fw.write(String.format("<span class='tip hide'>%s</span>\n",english));
 
         fw.write("<div class='check'> </div>\n");
         fw.write("</td>\n");
@@ -134,6 +138,7 @@ public class CreateHtml {
             "<head>\n" +
             "\n" +
             "    <meta charset=\"utf-8\">\n" +
+
             "    <title>English phrases</title>\n" +
             "    <script src=\"https://ajax.googleapis.com/ajax/libs/jquery/2.1.1/jquery.min.js\"></script>\n" +
             "\n" +
@@ -142,6 +147,9 @@ public class CreateHtml {
             "\n" +
             "<body>\n" +
             "<section id=\"content\">\n" +
+            "    <input class=\"shuffle_button\" type=\"button\" value=\"Shuffle\"/>\n" +
+            "    <input class=\"show_button\" type=\"button\" value=\"Show all questions\"/>\n" +
+            "    <input class=\"hide_button\" type=\"button\" value=\"Hide all questions\"/>\n" +
             "    <table class=\"table-sentences\">\n" +
             "        <caption>\n" +
             "            <h3>Английские фразы</h3>\n" +
