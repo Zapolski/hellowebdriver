@@ -81,12 +81,17 @@ public class CreateHtml {
 
     private static void flushRecordToHtml(FileWriter fw, int i, TaskRecord record) throws IOException {
         fw.write("<tr>\n");
-        fw.write(String.format("<td class=\"center\">%d</td>\n",i));
+
+        fw.write("<td class=\"center\">\n");
+        fw.write("<input class=\"show_question\" type=\"checkbox\">\n");
+        fw.write(String.format("<span>%s</span>",i));
+        fw.write("</td>\n");
+
         fw.write("<td>\n");
-        fw.write(String.format("<span>%s</span>\n",record.getRussian()));
+        fw.write(String.format("<span class=\"question question_hidden\">%s</span>\n",record.getRussian()));
 
         if (!record.getRule().isEmpty()){
-            fw.write(String.format("<span class='support' tabindex=\"%d\" data-title='%s'>\n",10000+i,record.getRule()));
+            fw.write(String.format("<span class='support question_hidden' tabindex=\"%d\" data-title='%s'>\n",10000+i,record.getRule()));
             fw.write("<em>?</em>\n");
             fw.write("</span>\n");
         }
@@ -136,16 +141,19 @@ public class CreateHtml {
             "</head>\n" +
             "\n" +
             "<body>\n" +
+            "<section id=\"content\">\n" +
             "    <table class=\"table-sentences\">\n" +
             "        <caption>\n" +
             "            <h3>Английские фразы</h3>\n" +
             "        </caption>\n" +
             "        <tr>\n" +
-            "            <th>№ п/п</th>\n" +
+            "            <th>Номер</th>\n" +
             "            <th>Русская версия / Английская версия</th>\n" +
             "            <th>Проигрыватель</th>\n" +
             "        </tr>\n";
+
     public static final String STR_FOOTER = "    </table>\n" +
+            "</section>\n" +
             "</body>\n" +
             "<script src=\"js/scripts.js\"></script>\n" +
             "\n" + "<script src=\"js/check-translate.js\"></script>" +
