@@ -1,3 +1,4 @@
 #weekdays: monday, tuesday, wednesday, thursday, friday, saturday, sunday
 #envy: envy
-words_unit001: provide, revenue, base, employee, operate, specialize, subsidiary, competitor, produce, competitor, exporter
+#words_unit001: provide, revenue, base, employee, operate, specialize, subsidiary, competitor, produce, competitor, exporter
+words_unit002: deal with, consultant, supplier, client, colleague, staff, customer, consist of, consist in, involve, involved in, communicate, agency, contact, currently, consultancy, work for, work on, take part

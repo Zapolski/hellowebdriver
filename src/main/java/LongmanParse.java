@@ -25,8 +25,8 @@ public class LongmanParse {
     private static By xpathExamples = By.xpath("//*[ (./*[@data-src-mp3]) and contains(@class,'EXAMPLE')]");
     private static By xpathMp3Link = By.xpath("./*[@data-src-mp3]");
 
-    private static String DATABASE_FILE = "d:\\Test\\English\\info\\words_unit001.xls";
-    private static String LIST_WORDS = "d:\\Test\\English\\info\\words_unit001.txt";
+    private static String DATABASE_FILE = "d:\\Test\\English\\info\\words_unit002.xls";
+    private static String LIST_WORDS = "d:\\Test\\English\\info\\words_unit002.txt";
     private static String DIR_WITH_SOUNDS = "d:/Test/English/words/";
 
     //private static String currentWord = "occur";
@@ -54,8 +54,8 @@ public class LongmanParse {
             }
 
             System.out.printf("%04d --------> %s\n",i,word);
-
-            driver.get("https://www.ldoceonline.com/dictionary/" + word);
+            //если фразовый глагол, то через черточку в адресной строке
+            driver.get("https://www.ldoceonline.com/dictionary/" + word.replaceAll(" ","-"));
             new WebDriverWait(driver, 10).until(CustomConditions.jQueryAJAXsCompleted());
 
 
