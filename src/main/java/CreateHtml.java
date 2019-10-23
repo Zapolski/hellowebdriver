@@ -13,7 +13,7 @@ import java.util.*;
 
 public class CreateHtml {
 
-    private static String DATABASE_FILE = "d:\\Test\\English\\info\\words_unit002.xls";
+    private static String DATABASE_FILE = "d:\\Test\\English\\info\\words_unit001.xls";
     private static String SETS_FILE = "set.txt";
 
     public static void main(String[] args) throws IOException {
@@ -88,7 +88,7 @@ public class CreateHtml {
         fw.write("</td>\n");
 
         fw.write("<td>\n");
-        fw.write(String.format("<span class=\"question question_hidden\">%s</span>\n",record.getRussian()));
+        fw.write(String.format("<span class=\"question question_hidden\">%s</span>\n",getStringWithFirstCaptialLetter(record.getRussian())));
 
         if (!record.getRule().isEmpty()){
             fw.write(String.format("<span class='support question_hidden' tabindex=\"%d\" data-title='%s'>\n",10000+i,record.getRule()));
@@ -100,6 +100,7 @@ public class CreateHtml {
 
         String english = record.getEnglish();
         english = english.replaceAll("(\\[.*?\\])", "</span><span class='tip show'>$1</span><span class='tip hide'>");
+        english = getStringWithFirstCaptialLetter(english);
 
         fw.write(String.format("<span class='tip hide'>%s</span>\n",english));
 
@@ -132,7 +133,7 @@ public class CreateHtml {
         return result;
     }
 
-    public static final String STR_HEADER = "<!DOCTYPE html>\n" +
+    private static final String STR_HEADER = "<!DOCTYPE html>\n" +
             "<html>\n" +
             "\n" +
             "<head>\n" +
@@ -160,10 +161,14 @@ public class CreateHtml {
             "            <th>Проигрыватель</th>\n" +
             "        </tr>\n";
 
-    public static final String STR_FOOTER = "    </table>\n" +
+    private static final String STR_FOOTER = "    </table>\n" +
             "</section>\n" +
             "</body>\n" +
             "<script src=\"js/scripts.js\"></script>\n" +
             "\n" + "<script src=\"js/check-translate.js\"></script>" +
             "</html>";
+
+    private static String getStringWithFirstCaptialLetter(String source){
+        return Character.toUpperCase(source.charAt(0)) + source.substring(1);
+    }
 }
