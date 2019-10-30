@@ -1,4 +1,7 @@
 #weekdays: monday, tuesday, wednesday, thursday, friday, saturday, sunday
-#envy: envy
-words_unit001: provide, revenue, base, employee, operate, specialize, subsidiary, competitor, produce, competitor, exporter
+#words_unit001: provide, revenue, base, employee, operate, specialize, subsidiary, competitor, produce, competitor, exporter
 #words_unit002: deal with, consultant, supplier, client, colleague, staff, customer, consist of, consist in, involve, involved in, communicate, agency, contact, currently, consultancy, work for, work on, take part
+#somewords: argue, spoil, persuade, shut, confirm, earn, achieve, motivate
+#somewords2: envy, wait, encourage, occur, blame, resist
+seasons_day: summer, autumn, winter, spring, morning, evening, midnight, noon, afternoon,midday,yesterday,today,tomorrow, night
+months: january,february,march,april,may,june,july,august,september,october,november,december
