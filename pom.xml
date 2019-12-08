@@ -6,6 +6,7 @@
 
     <groupId>com.epam.auto.zapolski</groupId>
     <artifactId>hello-webdriver</artifactId>
+    <packaging>pom</packaging>
     <version>1.0-SNAPSHOT</version>
     <build>
         <plugins>
@@ -19,6 +20,9 @@
             </plugin>
         </plugins>
     </build>
+    <modules>
+        <module>englishphrases</module>
+    </modules>
 
 
     <dependencies>
