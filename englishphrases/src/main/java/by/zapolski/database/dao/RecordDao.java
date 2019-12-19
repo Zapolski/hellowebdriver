@@ -25,7 +25,6 @@ public class RecordDao {
     }
 
     public boolean create(Record record) throws SQLException {
-        boolean flag = false;
         connectorDB.setAutoCommit(false);
         Example example = new Example();
 
@@ -55,7 +54,7 @@ public class RecordDao {
 
         example.setEnglish(record.getEnglish());
         example.setRussian(record.getRussian());
-        example.setSound(record.getSoundPath());
+        example.setSound("words/"+record.getWord()+"/"+record.getSoundPath());
 
         exampleDao.create(example);
 

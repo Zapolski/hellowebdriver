@@ -13,18 +13,12 @@ import java.util.*;
 public class HtmlCreator {
 
     private static final String SETS_FILE = "set.txt";
+    private static final String PATH_FOR_HTML = "d:/Test/English/";
 
     public static void main(String[] args) throws IOException {
+
         List<String> setList = Files.readAllLines(Paths.get(SETS_FILE));
-        Map<String, String[]> filesMap = new HashMap<>();
-        for (String set : setList) {
-            if (set.startsWith("#")) {
-                continue;
-            }
-            String key = set.split(":")[0];
-            String[] value = set.split(":")[1].trim().split("\\s*,\\s*");
-            filesMap.put(key, value);
-        }
+        Map<String, String[]> filesMap = getMapWithSets(setList);
 
         for (Map.Entry<String, String[]> entry : filesMap.entrySet()) {
             System.out.println("Current set: " + entry.getKey() + " " + Arrays.toString(entry.getValue()));
@@ -39,9 +33,22 @@ public class HtmlCreator {
 
             Collections.shuffle(recordList);
 
-            String fileName = "d:/Test/English/" + entry.getKey() + " (" + recordList.size() + ")" + ".html";
+            String fileName = PATH_FOR_HTML + entry.getKey() + " (" + recordList.size() + ")" + ".html";
             createHtml(recordList, fileName);
         }
+    }
+
+    private static Map<String, String[]> getMapWithSets(List<String> setList) {
+        Map<String, String[]> filesMap = new HashMap<>();
+        for (String set : setList) {
+            if (set.startsWith("#")) {
+                continue;
+            }
+            String key = set.split(":")[0];
+            String[] value = set.split(":")[1].trim().split("\\s*,\\s*");
+            filesMap.put(key, value);
+        }
+        return filesMap;
     }
 
     private static void createHtml(List<Record> recordList, String fileName) throws IOException {
