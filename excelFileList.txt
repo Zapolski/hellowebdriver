@@ -1,0 +1,9 @@
+d:\test\English\info\bigSet.xls
+d:\test\English\info\data.xls
+d:\test\English\info\general.xls
+d:\test\English\info\somewords.xls
+d:\test\English\info\somewords2.xls
+d:\test\English\info\weekdays.xls
+d:\test\English\info\words_unit001.xls
+d:\test\English\info\words_unit002.xls
+d:\test\English\info\words_unit003.xls

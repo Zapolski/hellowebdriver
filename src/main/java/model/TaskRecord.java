@@ -1,5 +1,8 @@
 package model;
 
+import lombok.ToString;
+
+@ToString
 public class TaskRecord {
 
     private String word;
