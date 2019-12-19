@@ -35,6 +35,10 @@ public class WordDao implements Dao<Integer, Word> {
         conn = new ConnectorDB();
     }
 
+    public WordDao(ConnectorDB conn) {
+        this.conn = conn;
+    }
+
     @Override
     public List<Word> getAll() {
         List<Word> list = new ArrayList<>();
@@ -134,6 +138,6 @@ public class WordDao implements Dao<Integer, Word> {
 
     @Override
     public void close() {
-        conn.closeConnection();
+        conn.close();
     }
 }

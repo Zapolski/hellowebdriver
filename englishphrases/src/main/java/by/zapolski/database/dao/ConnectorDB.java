@@ -5,7 +5,7 @@ import java.io.IOException;
 import java.sql.*;
 import java.util.Properties;
 
-public class ConnectorDB {
+public class ConnectorDB implements AutoCloseable{
     private static final String FILE_PROP_NAME = "database.properties";
 
     private static final String URL = "url";
@@ -49,7 +49,8 @@ public class ConnectorDB {
         }
     }
 
-    public void closeConnection() {
+    @Override
+    public void close() {
         if (connection != null) {
             try {
                 connection.close();

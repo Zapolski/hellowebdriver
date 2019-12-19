@@ -1,9 +1,11 @@
 package by.zapolski.database.model;
 
 import lombok.Data;
+import lombok.ToString;
 
 @Data
-public class Record {
+@ToString (callSuper = true)
+public class Record extends Entity{
     private String word;
     private String russian;
     private String english;

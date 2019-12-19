@@ -27,11 +27,16 @@ public class RuleDao implements Dao<Integer, Rule> {
     private static final String SQL_UPDATE_BY_ID = "UPDATE " + TABLE_NAME + " SET " + ALL_FIELDS_FOR_UPDATE + " where id = ?;";
     private static final String SQL_DELETE_BY_ID = "DELETE FROM " + TABLE_NAME + " WHERE id = ?;";
     private static final String SQL_CLEAR_TABLE = "DELETE FROM " + TABLE_NAME;
+    private static final String SQL_SELECT_BY_VALUE = "SELECT * FROM " + TABLE_NAME + " WHERE value = ?";
 
     private ConnectorDB conn;
 
     public RuleDao() {
         conn = new ConnectorDB();
+    }
+
+    public RuleDao(ConnectorDB conn) {
+        this.conn = conn;
     }
 
     @Override
@@ -109,6 +114,21 @@ public class RuleDao implements Dao<Integer, Rule> {
         }
     }
 
+    public Rule getByValue(String rule) {
+        try (PreparedStatement stmt = conn.getPreparedStatement(SQL_SELECT_BY_VALUE)) {
+            stmt.setString(1, rule);
+            try (ResultSet rs = stmt.executeQuery()) {
+                if (!rs.next()) {
+                    return null;
+                }
+                return new Rule(rs.getInt(FIELD_ID), rs.getString(FIELD_VALUE));
+            }
+        } catch (SQLException e) {
+            throw new DaoSystemException("Error during getting record by [" + FIELD_VALUE + "]", e);
+        }
+    }
+
+
     public void clearTable() {
         try (PreparedStatement stmt = conn.getPreparedStatement(SQL_CLEAR_TABLE)) {
             stmt.execute();
@@ -119,6 +139,6 @@ public class RuleDao implements Dao<Integer, Rule> {
 
     @Override
     public void close() {
-        conn.closeConnection();
+        conn.close();
     }
 }

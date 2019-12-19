@@ -19,13 +19,17 @@ public class ExampleDao implements Dao<Integer, Example> {
     private static final String SQL_INSERT_RECORD = "INSERT INTO example (word_id,russian,english,sound,rule_id) VALUES (?,?,?,?,?)";
     private static final String SQL_UPDATE_BY_ID = "UPDATE example SET word_id = ?, russian = ?, english = ?,sound = ?,rule_id = ? where id = ?;";
     private static final String SQL_DELETE_BY_ID = "DELETE FROM example WHERE id = ?;";
-
+    private static final String SQL_SELECT_ALL_BY_WORD_ID = "select * from example where word_id = ?;";
     private static final String SQL_CLEAR_TABLE = "DELETE FROM " + TABLE_NAME;
 
     private ConnectorDB conn;
 
     public ExampleDao() {
         conn = new ConnectorDB();
+    }
+
+    public ExampleDao(ConnectorDB conn) {
+        this.conn = conn;
     }
 
     @Override
@@ -124,6 +128,28 @@ public class ExampleDao implements Dao<Integer, Example> {
         return flag;
     }
 
+    public List<Example> getExamplesByWordId(Integer id) {
+        List<Example> result = new ArrayList<>();
+        try (PreparedStatement stmt = conn.getPreparedStatement(SQL_SELECT_ALL_BY_WORD_ID)) {
+            stmt.setInt(1, id);
+            try (ResultSet rs = stmt.executeQuery()) {
+                while (rs.next()) {
+                    Example example = new Example();
+                    example.setId(rs.getInt(1));
+                    example.setWordId(rs.getInt(2));
+                    example.setRussian(rs.getString(3));
+                    example.setEnglish(rs.getString(4));
+                    example.setSound(rs.getString(5));
+                    example.setRuleId(rs.getInt(6));
+                    result.add(example);
+                }
+                return result;
+            }
+        } catch (SQLException e) {
+            throw new DaoSystemException("Error during getExamplesByWordId from word", e);
+        }
+    }
+
     public void clearTable() {
         try (PreparedStatement stmt = conn.getPreparedStatement(SQL_CLEAR_TABLE)) {
             stmt.execute();
@@ -134,6 +160,6 @@ public class ExampleDao implements Dao<Integer, Example> {
 
     @Override
     public void close() {
-        conn.closeConnection();
+        conn.close();
     }
 }
