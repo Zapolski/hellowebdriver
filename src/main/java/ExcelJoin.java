@@ -32,45 +32,49 @@ public class ExcelJoin {
             System.out.println("Rows count: [" + rowNum + "]");
             for (int index = 1; index < rowNum; index++) {
                 TaskRecord record = getTaskRecordFromXlsSheet(sheet, index);
+
+                if (!new File("d:\\test\\English\\words\\" + record.getWord()+"\\"+record.getMp3()).exists()){
+                    System.out.println(record+ " without sound.");
+                }
                 phrases.put(record.getMp3(), record);
             }
             workbook.close();
             inputStream.close();
         }
 
-        List<TaskRecord> recordList = new ArrayList<>();
-        for (Map.Entry<String, TaskRecord> entry : phrases.entrySet()) {
-            recordList.add(entry.getValue());
-        }
-        recordList.sort(Comparator.comparing(TaskRecord::getWord));
-        //recordList.forEach(System.out::println);
-        System.out.println("Rows result count: ["+recordList.size()+"]");
-
-        File file = new File(RESULT_FILE);
-        FileInputStream inputStream = new FileInputStream(file);
-        HSSFWorkbook workbook = new HSSFWorkbook(inputStream);
-        HSSFSheet sheet = workbook.getSheetAt(0);
-        int rowNum = sheet.getLastRowNum() + 1;
-        Cell cell;
-        Row row;
-        for (TaskRecord taskRecord: recordList){
-            row = sheet.createRow(rowNum++);
-            cell = row.createCell(0);
-            cell.setCellValue(taskRecord.getWord());
-            cell = row.createCell(1);
-            cell.setCellValue(taskRecord.getRussian());
-            cell = row.createCell(2);
-            cell.setCellValue(taskRecord.getEnglish());
-            cell = row.createCell(3);
-            cell.setCellValue(taskRecord.getMp3());
-            cell = row.createCell(4);
-            cell.setCellValue(taskRecord.getRule());
-        }
-        FileOutputStream outputStream = new FileOutputStream(file);
-        workbook.write(outputStream);
-        outputStream.flush();
-        outputStream.close();
-        workbook.close();
+//        List<TaskRecord> recordList = new ArrayList<>();
+//        for (Map.Entry<String, TaskRecord> entry : phrases.entrySet()) {
+//            recordList.add(entry.getValue());
+//        }
+//        recordList.sort(Comparator.comparing(TaskRecord::getWord));
+//        //recordList.forEach(System.out::println);
+//        System.out.println("Rows result count: ["+recordList.size()+"]");
+//
+//        File file = new File(RESULT_FILE);
+//        FileInputStream inputStream = new FileInputStream(file);
+//        HSSFWorkbook workbook = new HSSFWorkbook(inputStream);
+//        HSSFSheet sheet = workbook.getSheetAt(0);
+//        int rowNum = sheet.getLastRowNum() + 1;
+//        Cell cell;
+//        Row row;
+//        for (TaskRecord taskRecord: recordList){
+//            row = sheet.createRow(rowNum++);
+//            cell = row.createCell(0);
+//            cell.setCellValue(taskRecord.getWord());
+//            cell = row.createCell(1);
+//            cell.setCellValue(taskRecord.getRussian());
+//            cell = row.createCell(2);
+//            cell.setCellValue(taskRecord.getEnglish());
+//            cell = row.createCell(3);
+//            cell.setCellValue(taskRecord.getMp3());
+//            cell = row.createCell(4);
+//            cell.setCellValue(taskRecord.getRule());
+//        }
+//        FileOutputStream outputStream = new FileOutputStream(file);
+//        workbook.write(outputStream);
+//        outputStream.flush();
+//        outputStream.close();
+//        workbook.close();
 
 
 
