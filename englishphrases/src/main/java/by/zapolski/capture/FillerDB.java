@@ -59,7 +59,7 @@ public class FillerDB {
     public static void main(String[] args) throws IOException, SQLException {
         try (ConnectorDB connectorDB = new ConnectorDB();) {
             FillerDB fillerDB = new FillerDB(connectorDB);
-            fillerDB.fillFromExcelFile("d:\\Test\\English\\info\\words_unit001.xls");
+            fillerDB.fillFromExcelFile("phrases.xls");
         }
     }
 }
