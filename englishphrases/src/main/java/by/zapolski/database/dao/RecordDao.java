@@ -1,16 +1,42 @@
 package by.zapolski.database.dao;
 
 import by.zapolski.database.exception.DaoBusinessException;
+import by.zapolski.database.exception.DaoSystemException;
 import by.zapolski.database.model.Example;
 import by.zapolski.database.model.Record;
 import by.zapolski.database.model.Rule;
 import by.zapolski.database.model.Word;
 
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
 
 public class RecordDao {
+
+    private static final String SQL_SELECT_BY_ID = "SELECT example.id, word.value, example.russian, example.english, example.sound, rule.value \n" +
+            "FROM word\n" +
+            "JOIN example ON word.id = example.word_id\n" +
+            "JOIN rule ON example.rule_id = rule.id\n" +
+            "WHERE example.id = ?;";
+
+    private static final String SQL_SELECT_BY_SOUND_PATH = "SELECT example.id, word.value, example.russian, example.english, example.sound, rule.value \n" +
+            "FROM word\n" +
+            "JOIN example ON word.id = example.word_id\n" +
+            "JOIN rule ON example.rule_id = rule.id\n" +
+            "WHERE example.sound = ?;";
+
+    private static final String SQL_SELECT_BY_WORD = "SELECT example.id, word.value, example.russian, example.english, example.sound, rule.value \n" +
+            "FROM word\n" +
+            "JOIN example ON word.id = example.word_id\n" +
+            "JOIN rule ON example.rule_id = rule.id\n" +
+            "WHERE word.value = ?;";
+
+    private static final String SQL_SELECT_ALL = "SELECT example.id, word.value, example.russian, example.english, example.sound, rule.value \n" +
+            "FROM word\n" +
+            "JOIN example ON word.id = example.word_id\n" +
+            "JOIN rule ON example.rule_id = rule.id;";
 
     private WordDao wordDao;
     private RuleDao ruleDao;
@@ -28,33 +54,33 @@ public class RecordDao {
         connectorDB.setAutoCommit(false);
         Example example = new Example();
 
-        if (record.getWord() != null && !record.getWord().isEmpty()){
+        if (record.getWord() != null && !record.getWord().isEmpty()) {
             Word word = wordDao.getByValue(record.getWord());
-            if (word == null){
+            if (word == null) {
                 word = new Word();
                 word.setValue(record.getWord());
                 wordDao.create(word);
             }
             example.setWordId(word.getId());
-        }else {
+        } else {
             throw new DaoBusinessException("Error during inserting RECORD: field [word] is null or empty");
         }
 
-        if (record.getRule() != null){
+        if (record.getRule() != null) {
             Rule rule = ruleDao.getByValue(record.getRule());
-            if (rule == null){
+            if (rule == null) {
                 rule = new Rule();
                 rule.setValue(record.getRule());
                 ruleDao.create(rule);
             }
             example.setRuleId(rule.getId());
-        }else {
+        } else {
             throw new DaoBusinessException("Error during inserting RECORD: field [rule] is null");
         }
 
         example.setEnglish(record.getEnglish());
         example.setRussian(record.getRussian());
-        example.setSound("words/"+record.getWord()+"/"+record.getSoundPath());
+        example.setSound(record.getSoundPath());
 
         exampleDao.create(example);
 
@@ -63,29 +89,85 @@ public class RecordDao {
         return true;
     }
 
-    public List<Record> getRecordsByWord(String queryWord){
-        List<Record> records = new ArrayList<>();
-
-        Word word = wordDao.getByValue(queryWord);
-        if (word == null){
-            System.out.println("There isn't word ["+queryWord+"] in DB.");
-            return records;
+    public List<Record> getRecordsByWord(String queryWord) {
+        List<Record> result = new ArrayList<>();
+        try (PreparedStatement stmt = connectorDB.getPreparedStatement(SQL_SELECT_BY_WORD)) {
+            stmt.setString(1, queryWord);
+            try (ResultSet rs = stmt.executeQuery()) {
+                while (rs.next()) {
+                    Record record = new Record();
+                    record.setId(rs.getInt(1));
+                    record.setWord(rs.getString(2));
+                    record.setRussian(rs.getString(3));
+                    record.setEnglish(rs.getString(4));
+                    record.setSoundPath(rs.getString(5));
+                    record.setRule(rs.getString(6));
+                    result.add(record);
+                }
+                return result;
+            }
+        } catch (SQLException e) {
+            throw new DaoSystemException("Error during [getRecordsByWord] from word", e);
         }
+    }
 
-        System.out.println("Process word: "+word);
-        List<Example> examples = exampleDao.getExamplesByWordId(word.getId());
-        System.out.println("Founded "+examples.size()+" examples.");
-
-        for (Example example: examples){
-            Record record = new Record();
-            record.setId(example.getId());
-            record.setWord(word.getValue());
-            record.setSoundPath(example.getSound());
-            record.setEnglish(example.getEnglish());
-            record.setRussian(example.getRussian());
-            record.setRule(ruleDao.getById(example.getRuleId()).getValue());
-            records.add(record);
+    public Record getRecordsById(int id) {
+        Record result = new Record();
+        try (PreparedStatement stmt = connectorDB.getPreparedStatement(SQL_SELECT_BY_ID)) {
+            stmt.setInt(1, id);
+            try (ResultSet rs = stmt.executeQuery()) {
+                while (rs.next()) {
+                    result.setId(rs.getInt(1));
+                    result.setWord(rs.getString(2));
+                    result.setRussian(rs.getString(3));
+                    result.setEnglish(rs.getString(4));
+                    result.setSoundPath(rs.getString(5));
+                    result.setRule(rs.getString(6));
+                }
+                return result;
+            }
+        } catch (SQLException e) {
+            throw new DaoSystemException("Error during [getRecordsById] from word", e);
         }
-        return records;
+    }
+
+    public Record getRecordsBySoundPath(String soundPath) {
+        Record result = new Record();
+        try (PreparedStatement stmt = connectorDB.getPreparedStatement(SQL_SELECT_BY_SOUND_PATH)) {
+            stmt.setString(1, soundPath);
+            try (ResultSet rs = stmt.executeQuery()) {
+                while (rs.next()) {
+                    result.setId(rs.getInt(1));
+                    result.setWord(rs.getString(2));
+                    result.setRussian(rs.getString(3));
+                    result.setEnglish(rs.getString(4));
+                    result.setSoundPath(rs.getString(5));
+                    result.setRule(rs.getString(6));
+                }
+                return result;
+            }
+        } catch (SQLException e) {
+            throw new DaoSystemException("Error during [getRecordsBySoundPath] from word", e);
+        }
+    }
+
+    public List<Record> getAll() {
+        List<Record> result = new ArrayList<>();
+        try (PreparedStatement stmt = connectorDB.getPreparedStatement(SQL_SELECT_ALL);
+             ResultSet rs = stmt.executeQuery()) {
+            while (rs.next()) {
+                Record record = new Record();
+                record.setId(rs.getInt(1));
+                record.setWord(rs.getString(2));
+                record.setRussian(rs.getString(3));
+                record.setEnglish(rs.getString(4));
+                record.setSoundPath(rs.getString(5));
+                record.setRule(rs.getString(6));
+                result.add(record);
+            }
+            return result;
+        } catch (SQLException e) {
+            throw new DaoSystemException("Error during [getRecordsByWord] from word", e);
+        }
     }
 }

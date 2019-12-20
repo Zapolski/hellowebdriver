@@ -21,7 +21,6 @@ public class FillerDB {
         this.connectorDB = connectorDB;
     }
 
-
     public void fillFromExcelFile(String filePath) throws IOException, SQLException {
         File file = new File(filePath);
         FileInputStream inputStream = new FileInputStream(file);
@@ -33,6 +32,7 @@ public class FillerDB {
             for (int index = 1; index < rowNum; index++) {
                 Record record = getTaskRecordFromXlsSheet(sheet, index);
                 recordDao.create(record);
+                System.out.println(record + " was added.");
             }
         }
     }
@@ -60,8 +60,6 @@ public class FillerDB {
         try (ConnectorDB connectorDB = new ConnectorDB();) {
             FillerDB fillerDB = new FillerDB(connectorDB);
             fillerDB.fillFromExcelFile("d:\\Test\\English\\info\\words_unit001.xls");
-            //RecordDao recordDao = new RecordDao(connectorDB);
-            //recordDao.getRecordsByWord("provide").forEach(System.out::println);
         }
     }
 }
