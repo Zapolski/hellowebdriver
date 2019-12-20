@@ -27,8 +27,8 @@ public class ServiceUtils {
                 dirCount--;
             }
         }
-        System.out.println("Total full directories with words: " + dirCount);
-        System.out.println("    Removed directories: " + dirRemovedCount);
+        System.out.println("Total filled directories with words: " + dirCount);
+        System.out.println("    Removed empty directories: " + dirRemovedCount);
     }
 
     public static void compareSoundFilesWithDbRecords() {
