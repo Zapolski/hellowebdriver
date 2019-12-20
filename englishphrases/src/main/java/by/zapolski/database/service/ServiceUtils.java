@@ -16,32 +16,42 @@ public class ServiceUtils {
 
     public static void checkEmptyDirectoriesWithWords() {
         File directory = new File(WORDS_PATH);
+        int dirCount = 0;
+        int dirRemovedCount = 0;
         for (File currentDir : directory.listFiles()) {
+            dirCount++;
             if (currentDir.isDirectory() && currentDir.listFiles().length == 0) {
                 currentDir.delete();
                 System.out.println("Empty catalog: [" + currentDir.getName() + "] is removed");
+                dirRemovedCount++;
+                dirCount--;
             }
         }
+        System.out.println("Total full directories with words: " + dirCount);
+        System.out.println("    Removed directories: " + dirRemovedCount);
     }
 
     public static void compareSoundFilesWithDbRecords() {
         ConnectorDB connectorDB = new ConnectorDB();
         RecordDao recordDao = new RecordDao(connectorDB);
         File directory = new File(WORDS_PATH);
-        int count = 0;
+        int missedCount = 0;
+        int fileCount = 0;
         for (File currentDir : directory.listFiles()) {
             if (currentDir.isDirectory() && currentDir.listFiles().length != 0) {
                 File[] files = currentDir.listFiles();
                 for (File file : files) {
+                    fileCount++;
                     Record record = recordDao.getRecordsBySoundPath(file.getName());
                     if (record.getSoundPath() == null) {
-                        count++;
+                        missedCount++;
                         System.out.println("Record for [" + file.getName() + "] is missing in DB");
                     }
                 }
             }
         }
-        System.out.println("Missing records: " + count);
+        System.out.println("Total files with sound: " + fileCount);
+        System.out.println("    Missing records: " + missedCount);
         connectorDB.close();
     }
 
@@ -49,6 +59,7 @@ public class ServiceUtils {
         ConnectorDB connectorDB = new ConnectorDB();
         RecordDao recordDao = new RecordDao(connectorDB);
         List<Record> records = recordDao.getAll();
+
         int count = 0;
         for (Record record : records) {
             File file = new File(WORDS_PATH + "\\" + record.getWord() + "\\" + record.getSoundPath());
@@ -57,7 +68,8 @@ public class ServiceUtils {
                 System.out.println("For record with sound file [" + record.getSoundPath() + "] sound file is missing.");
             }
         }
-        System.out.println("Missing files: " + count);
+        System.out.println("Total records: " + records.size());
+        System.out.println("    Missing files: " + count);
         connectorDB.close();
     }
 
