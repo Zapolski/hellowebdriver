@@ -1,10 +1,13 @@
 package by.zapolski.database.dao;
 
+import org.springframework.stereotype.Component;
+
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.sql.*;
 import java.util.Properties;
 
+@Component
 public class ConnectorDB implements AutoCloseable{
     private static final String FILE_PROP_NAME = "database.properties";
 

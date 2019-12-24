@@ -6,6 +6,8 @@ import by.zapolski.database.model.Example;
 import by.zapolski.database.model.Record;
 import by.zapolski.database.model.Rule;
 import by.zapolski.database.model.Word;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Component;
 
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
@@ -13,6 +15,7 @@ import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
 
+@Component
 public class RecordDao {
 
     private static final String SQL_SELECT_BY_ID = "SELECT example.id, word.value, example.russian, example.english, example.sound, rule.value \n" +
@@ -38,9 +41,14 @@ public class RecordDao {
             "JOIN example ON word.id = example.word_id\n" +
             "JOIN rule ON example.rule_id = rule.id;";
 
+
+    @Autowired
     private WordDao wordDao;
+    @Autowired
     private RuleDao ruleDao;
+    @Autowired
     private ExampleDao exampleDao;
+    @Autowired
     private ConnectorDB connectorDB;
 
     public RecordDao(ConnectorDB connectorDB) {

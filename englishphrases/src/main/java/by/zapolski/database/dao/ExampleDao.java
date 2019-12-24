@@ -2,6 +2,7 @@ package by.zapolski.database.dao;
 
 import by.zapolski.database.exception.DaoSystemException;
 import by.zapolski.database.model.Example;
+import org.springframework.stereotype.Component;
 
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
@@ -10,6 +11,7 @@ import java.sql.Statement;
 import java.util.ArrayList;
 import java.util.List;
 
+@Component
 public class ExampleDao implements Dao<Integer, Example> {
 
     private static final String TABLE_NAME = "example";
