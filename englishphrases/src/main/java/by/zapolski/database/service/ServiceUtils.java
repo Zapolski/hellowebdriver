@@ -21,7 +21,7 @@ public class ServiceUtils {
         for (File currentDir : directory.listFiles()) {
             dirCount++;
             if (currentDir.isDirectory() && currentDir.listFiles().length == 0) {
-                currentDir.delete();
+                //currentDir.delete();
                 System.out.println("Empty catalog: [" + currentDir.getName() + "] is removed");
                 dirRemovedCount++;
                 dirCount--;
@@ -34,6 +34,8 @@ public class ServiceUtils {
     public static void compareSoundFilesWithDbRecords() {
         ConnectorDB connectorDB = new ConnectorDB();
         RecordDao recordDao = new RecordDao(connectorDB);
+        List<Record> records = recordDao.getAll();
+
         File directory = new File(WORDS_PATH);
         int missedCount = 0;
         int fileCount = 0;
@@ -42,8 +44,7 @@ public class ServiceUtils {
                 File[] files = currentDir.listFiles();
                 for (File file : files) {
                     fileCount++;
-                    Record record = recordDao.getRecordsBySoundPath(file.getName());
-                    if (record.getSoundPath() == null) {
+                    if (records.stream().noneMatch(rec -> file.getName().equals(rec.getSoundPath()))) {
                         missedCount++;
                         System.out.println("Record for [" + file.getName() + "] is missing in DB");
                     }
@@ -64,21 +65,19 @@ public class ServiceUtils {
         for (Record record : records) {
             File file = new File(WORDS_PATH + "\\" + record.getWord() + "\\" + record.getSoundPath());
             if (!file.exists()) {
+                recordDao.removeById(record.getId());
                 count++;
                 System.out.println("For record with sound file [" + record.getSoundPath() + "] sound file is missing.");
             }
         }
         System.out.println("Total records: " + records.size());
-        System.out.println("    Missing files: " + count);
+        System.out.println("    Missing files: " + count + " was removed");
         connectorDB.close();
     }
-
 
     public static void main(String[] args) {
         ServiceUtils.checkEmptyDirectoriesWithWords();
         ServiceUtils.compareSoundFilesWithDbRecords();
         ServiceUtils.compareDbRecordsWithFiles();
     }
-
-
 }

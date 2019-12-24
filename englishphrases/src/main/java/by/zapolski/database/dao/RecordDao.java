@@ -91,6 +91,7 @@ public class RecordDao {
         example.setSound(record.getSoundPath());
 
         exampleDao.create(example);
+        record.setId(example.getId());
 
         connectorDB.commit();
         connectorDB.setAutoCommit(true);
@@ -177,5 +178,9 @@ public class RecordDao {
         } catch (SQLException e) {
             throw new DaoSystemException("Error during [getRecordsByWord] from word", e);
         }
+    }
+
+    public void removeById(int id) {
+        exampleDao.remove(id);
     }
 }
