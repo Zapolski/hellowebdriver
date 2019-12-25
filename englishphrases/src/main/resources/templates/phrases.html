@@ -1,0 +1,171 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+
+    <meta charset="utf-8">
+    <title>English phrases</title>
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/2.1.1/jquery.min.js"></script>
+
+    <link href="css/style.css" rel="stylesheet">
+</head>
+
+<body>
+<section id="content">
+
+    <br><br>
+    <form data-bind="submit: loadRecordByWord">
+        <input data-bind="value: searchString" type="text">
+        <input type="submit" value="Get examples">
+    </form>
+
+    <table class="table-sentences">
+        <caption>
+            <h3>Английские фразы</h3>
+        </caption>
+        <tr>
+            <th>Номер</th>
+            <th>Русская версия / Английская версия</th>
+            <th>Проигрыватель</th>
+        </tr>
+        <tbody data-bind="foreach: records">
+        <tr>
+            <td class="center">
+                <input data-bind="event: {change: $parent.showQuestionCheckboxChange}" class="show_question"
+                       type="checkbox">
+                <span data-bind="text: ($index() + 1)"></span></td>
+            <td>
+                        <span data-bind="attr: {tabindex: ($index() + 100001), data_title: $data.rule}"
+                              class='support question_hidden' data-title=''>
+                            <em>?</em>
+                        </span>
+                <span data-bind="text: $data.russian" class="question question_hidden"></span>
+                <input data-bind="event: {keyup: $parent.inputFiledKeyUp}, attr: {tabindex: ($index() + 1)}"
+                       class='input-field' type="text" placeholder="Введите перевод">
+                <span data-bind="text: $data.english" class='tip hide'></span><br>
+                <div class='check'></div>
+            </td>
+            <td class="center">
+                <a data-bind="event: {click: $parent.musicButtonClick}" class="music-button"><img
+                        src="img/player_play.png"></a>
+                <audio data-bind="attr: {src: '../words/'+ $data.word + '/' + $data.soundPath}" class="player"
+                       type="audio/mpeg"></audio>
+                <br><input
+                    data-bind="event: {change: $parent.inputRangeInputAndChange, input: $parent.inputRangeInputAndChange}"
+                    type="range" step="0.1" min="0.2" max="2" value="1" class="speed"/>
+                <br><span class="speed-text">1.0</span>
+            </td>
+        </tr>
+        </tbody>
+    </table>
+</section>
+
+<script type="text/javascript" src="https://ajax.aspnetcdn.com/ajax/knockout/knockout-3.4.0.js"></script>
+<script>
+        // The records view model
+        function BookmarkViewModel() {
+            var self = this;
+
+            self.searchString = ko.observable("learn");
+            self.records = ko.observableArray([]);
+
+            // load records from server: GET on records resource
+            self.loadRecordByWord = function () {
+                $.ajax("http://localhost:8080/records/" + self.searchString(), {
+                    type: "get",
+                    success: function (allData) {
+                        var json = ko.toJSON(allData);
+                        self.records(JSON.parse(json));
+                    }
+                });
+            };
+
+            self.inputFiledKeyUp = function (record, event) {
+                var $this = $(event.target);
+
+                if ($this.hasClass('invalid')) {
+                    $this.removeClass('invalid')
+                }
+
+                if ($this.hasClass('correct')) {
+                    $this.removeClass('correct')
+                }
+
+                if (event.keyCode == 113) {
+                    let checkbox = $this.closest('tr')[0].getElementsByClassName('show_question')[0];
+                    $(checkbox).trigger('click');
+                }
+
+                if (event.keyCode == 13) {
+                    var actualVal = "";
+                    tipColl = $this.closest('td')[0].getElementsByClassName('tip');
+                    for (let i = 0; i < tipColl.length; i++) {
+                        actualVal = actualVal + tipColl[i].innerHTML;
+                    }
+                    actualVal = actualVal.replace(/[\[\]]/g, "");
+                    var currentVal = $this.val();
+                    var checkDiv = $this.closest('td')[0].getElementsByClassName('check')[0];
+                    currentVal = currentVal.replace(/[,:;?.!]/g, "").replace(/[ ]{2,}/g, " ");
+                    actualVal = actualVal.replace(/[,:;?.!]/g, "").replace(/[ ]{2,}/g, " ");
+                    $this.closest('tr')[0].getElementsByClassName('music-button')[0].click();
+                    if (currentVal != actualVal) {
+                        $this.addClass('invalid');
+                        checkDiv.innerHTML = checkTranslate(actualVal, currentVal);
+                    } else {
+                        $this.addClass('correct');
+                        checkDiv.innerHTML = '';
+                    }
+                }
+
+                if (event.keyCode == 40) {
+                    let currentVal = Number($this.closest('tr')[0].getElementsByClassName('speed')[0].value) - 0.1;
+                    $this.closest('tr')[0].getElementsByClassName('speed')[0].value = currentVal;
+                    $this.closest('tr')[0].getElementsByClassName('speed')[0].dispatchEvent(new Event("change"));
+                }
+
+                if (event.keyCode == 38) {
+                    let currentVal = Number($this.closest('tr')[0].getElementsByClassName('speed')[0].value) + 0.1;
+                    $this.closest('tr')[0].getElementsByClassName('speed')[0].value = currentVal;
+                    $this.closest('tr')[0].getElementsByClassName('speed')[0].dispatchEvent(new Event("change"));
+                }
+            };
+
+            self.musicButtonClick = function (record, event) {
+                var $this = $(event.target);
+                audioEl = $this.closest('td')[0].getElementsByTagName('audio')[0];
+                audioEl.playbackRate = $this.closest('td')[0].getElementsByClassName('speed')[0].value;
+                audioEl.play();
+            }
+
+            self.inputRangeInputAndChange = function (record, event) {
+                var $this = $(event.target);
+                $this.nextAll('.speed-text')[0].innerHTML = parseFloat($this.val()).toFixed(1);
+            }
+
+            self.showQuestionCheckboxChange = function (record, event) {
+                var $this = $(event.target);
+                if ($this.is(":checked")) {
+                    $this.closest('tr')[0].getElementsByClassName('question')[0].classList.remove('question_hidden');
+                    if ($this.closest('tr')[0].getElementsByClassName('support').length > 0) {
+                        $this.closest('tr')[0].getElementsByClassName('support')[0].classList.remove('question_hidden');
+                    }
+                    return;
+                }
+                $this.closest('tr')[0].getElementsByClassName('question')[0].classList.add('question_hidden');
+                if ($this.closest('tr')[0].getElementsByClassName('support').length > 0) {
+                    $this.closest('tr')[0].getElementsByClassName('support')[0].classList.add('question_hidden');
+                }
+            }
+            self.loadRecordByWord();
+        }
+
+        ko.options.useOnlyNativeEvents = true;
+        ko.applyBindings(new BookmarkViewModel());
+
+</script>
+
+</body>
+
+<script src="js/check-translate.js"></script>
+
+</html>
