@@ -11,74 +11,75 @@
 </head>
 
 <body>
-    <section id="content">
+<section id="content">
 
-        <br><br>
-        <label>Id</label>
-        <input data-bind="value: newId" type="text" class='input-field'><br>
+    <br><br>
+    <label>Id</label>
+    <input data-bind="value: newId" type="text" class='input-field'><br>
+    <label>Word</label>
+    <input data-bind="value: newWord" type="text" class='input-field'><br>
+    <label>Russian</label>
+    <input data-bind="value: newRussian" type="text" class='input-field'><br>
+    <label>English</label>
+    <input data-bind="value: newEnglish" type="text" class='input-field'><br>
+    <label>Sound</label>
+    <input data-bind="value: newSound" type="text" class='input-field'><br>
+    <label>Rule</label>
+    <input data-bind="value: newRule" type="text" class='input-field'><br>
+    <button data-bind="click: updateRecord">Update record</button>
+
+
+    <br><br>
+    <form data-bind="submit: loadRecordByWord">
         <label>Word</label>
-        <input data-bind="value: newWord" type="text" class='input-field'><br>
-        <label>Russian</label>
-        <input data-bind="value: newRussian" type="text" class='input-field'><br>
-        <label>English</label>
-        <input data-bind="value: newEnglish" type="text" class='input-field'><br>
-        <label>Sound</label>
-        <input data-bind="value: newSound" type="text" class='input-field'><br>
-        <label>Rule</label>
-        <input data-bind="value: newRule" type="text" class='input-field'><br>
-        <button data-bind="click: updateRecord">Update record</button>
+        <input data-bind="value: searchString" type="text">
+        <input type="submit" value="Get examples">
+    </form>
 
-
-        <br><br>
-        <form data-bind="submit: loadRecordByWord">
-            <input data-bind="value: searchString" type="text">
-            <input type="submit" value="Get examples">
-        </form>
-
-        <table class="table-sentences">
-            <caption>
-                <h3>Английские фразы</h3>
-            </caption>
-            <tr>
-                <th>Номер</th>
-                <th>Русская версия / Английская версия</th>
-                <th>Проигрыватель</th>
-            </tr>
-            <tbody data-bind="foreach: records">
-                <tr>
-                    <td class="center">
-                        <input data-bind="event: {change: $parent.showQuestionCheckboxChange}" class="show_question"
-                            type="checkbox">
-                        <span data-bind="text: $data.id"></span></td>
-                    <td>
+    <table class="table-sentences">
+        <caption>
+            <h3>Английские фразы</h3>
+        </caption>
+        <tr>
+            <th>Номер</th>
+            <th>Русская версия / Английская версия</th>
+            <th>Проигрыватель</th>
+        </tr>
+        <tbody data-bind="foreach: records">
+        <tr>
+            <td class="center">
+                <input data-bind="event: {change: $parent.showQuestionCheckboxChange}" class="show_question"
+                       type="checkbox">
+                <span data-bind="text: $data.id"></span></td>
+            <td>
                         <span data-bind="attr: {tabindex: ($index() + 100001), data_title: $data.rule}"
-                            class='support question_hidden' data-title=''>
+                              class='support question_hidden' data-title=''>
                             <em>?</em>
                         </span>
-                        <span data-bind="text: $data.russian" class="question question_hidden"></span>
-                        <input data-bind="event: {keyup: $parent.inputFiledKeyUp}, attr: {tabindex: ($index() + 1)}"
-                            class='input-field' type="text" placeholder="Введите перевод">
-                        <span data-bind="text: $data.english" class='tip hide'></span><br>
-                        <div class='check'></div>
-                        <button data-bind="click: $parent.editRecord">Edit</button>
-                    </td>
-                    <td class="center">
-                        <a data-bind="event: {click: $parent.musicButtonClick}" class="music-button"><img
-                                src="img/player_play.png"></a>
-                        <audio data-bind="attr: {src: '../words/'+ $data.word + '/' + $data.soundPath}" class="player"
-                            type="audio/mpeg"></audio>
-                        <br><input
-                            data-bind="event: {change: $parent.inputRangeInputAndChange, input: $parent.inputRangeInputAndChange}"
-                            type="range" step="0.1" min="0.2" max="2" value="1" class="speed" />
-                        <br><span class="speed-text">1.0</span>
-                    </td>
-                </tr>
-            </tbody>
-        </table>
-    </section>
+                <span data-bind="text: $data.russian" class="question question_hidden"></span>
+                <input data-bind="event: {keyup: $parent.inputFiledKeyUp}, attr: {tabindex: ($index() + 1)}"
+                       class='input-field' type="text" placeholder="Введите перевод">
+                <span data-bind="text: $data.english" class='tip hide'></span><br>
+                <div class='check'></div>
+                <button data-bind="click: $parent.editRecord">Edit</button>
+            </td>
+            <td class="center">
+                <a data-bind="event: {click: $parent.musicButtonClick}" class="music-button"><img
+                        src="img/player_play.png"></a>
+                <audio data-bind="attr: {src: '../words/'+ $data.word + '/' + $data.soundPath}" class="player"
+                       type="audio/mpeg"></audio>
+                <br><input
+                    data-bind="event: {change: $parent.inputRangeInputAndChange, input: $parent.inputRangeInputAndChange}"
+                    type="range" step="0.1" min="0.2" max="2" value="1" class="speed"/>
+                <br><span class="speed-text">1.0</span>
+            </td>
+        </tr>
+        </tbody>
+    </table>
+</section>
 
-    <script type="text/javascript" src="https://ajax.aspnetcdn.com/ajax/knockout/knockout-3.4.0.js"></script>
-    <script>
+<script type="text/javascript" src="https://ajax.aspnetcdn.com/ajax/knockout/knockout-3.4.0.js"></script>
+<script>
         // The records view model
         function BookmarkViewModel() {
             var self = this;
@@ -117,9 +118,9 @@
             self.updateRecord = function () {
                 var dataJson = '{"id":' + self.newId() + ',"word":"' + self.newWord() + '","russian":"' + self.newRussian() + '","english":"' + self.newEnglish() + '","soundPath":"' + self.newSound() + '","rule":"' + self.newRule() + '"}';
                 console.log(dataJson);
-                $.ajax("http://localhost:8080/records/364", {
+                $.ajax("http://localhost:8080/records/" + self.newId(), {
                     data: dataJson,
-                    type: "PUT",
+                    type: "put",
                     contentType: "application/json",
                     success: function (allData) {
                         self.loadRecordByWord();

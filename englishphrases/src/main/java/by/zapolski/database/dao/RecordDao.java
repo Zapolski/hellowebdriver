@@ -34,7 +34,8 @@ public class RecordDao {
             "FROM word\n" +
             "JOIN example ON word.id = example.word_id\n" +
             "JOIN rule ON example.rule_id = rule.id\n" +
-            "WHERE word.value = ?;";
+            "WHERE word.value = ?\n" +
+            "ORDER BY example.id;";
 
     private static final String SQL_SELECT_ALL = "SELECT example.id, word.value, example.russian, example.english, example.sound, rule.value \n" +
             "FROM word\n" +
