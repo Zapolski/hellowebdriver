@@ -183,4 +183,45 @@ public class RecordDao {
     public void removeById(int id) {
         exampleDao.remove(id);
     }
+
+    public Record update(Record record) throws SQLException {
+        connectorDB.setAutoCommit(false);
+        Example example = new Example();
+
+        if (record.getWord() != null && !record.getWord().isEmpty()) {
+            Word word = wordDao.getByValue(record.getWord());
+            if (word == null) {
+                word = new Word();
+                word.setValue(record.getWord());
+                wordDao.create(word);
+            }
+            example.setWordId(word.getId());
+        } else {
+            throw new DaoBusinessException("Error during updating RECORD: field [word] is null or empty");
+        }
+
+        if (record.getRule() != null) {
+            Rule rule = ruleDao.getByValue(record.getRule());
+            if (rule == null) {
+                rule = new Rule();
+                rule.setValue(record.getRule());
+                ruleDao.create(rule);
+            }
+            example.setRuleId(rule.getId());
+        } else {
+            throw new DaoBusinessException("Error during updating RECORD: field [rule] is null");
+        }
+
+        example.setEnglish(record.getEnglish());
+        example.setRussian(record.getRussian());
+        example.setSound(record.getSoundPath());
+        example.setId(record.getId());
+
+        exampleDao.update(example);
+        record.setId(example.getId());
+
+        connectorDB.commit();
+        connectorDB.setAutoCommit(true);
+        return record;
+    }
 }

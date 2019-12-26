@@ -11,74 +11,122 @@
 </head>
 
 <body>
-<section id="content">
+    <section id="content">
 
-    <br><br>
-    <form data-bind="submit: loadRecordByWord">
-        <input data-bind="value: searchString" type="text">
-        <input type="submit" value="Get examples">
-    </form>
+        <br><br>
+        <label>Id</label>
+        <input data-bind="value: newId" type="text" class='input-field'><br>
+        <label>Word</label>
+        <input data-bind="value: newWord" type="text" class='input-field'><br>
+        <label>Russian</label>
+        <input data-bind="value: newRussian" type="text" class='input-field'><br>
+        <label>English</label>
+        <input data-bind="value: newEnglish" type="text" class='input-field'><br>
+        <label>Sound</label>
+        <input data-bind="value: newSound" type="text" class='input-field'><br>
+        <label>Rule</label>
+        <input data-bind="value: newRule" type="text" class='input-field'><br>
+        <button data-bind="click: updateRecord">Update record</button>
 
-    <table class="table-sentences">
-        <caption>
-            <h3>Английские фразы</h3>
-        </caption>
-        <tr>
-            <th>Номер</th>
-            <th>Русская версия / Английская версия</th>
-            <th>Проигрыватель</th>
-        </tr>
-        <tbody data-bind="foreach: records">
-        <tr>
-            <td class="center">
-                <input data-bind="event: {change: $parent.showQuestionCheckboxChange}" class="show_question"
-                       type="checkbox">
-                <span data-bind="text: ($index() + 1)"></span></td>
-            <td>
+
+        <br><br>
+        <form data-bind="submit: loadRecordByWord">
+            <input data-bind="value: searchString" type="text">
+            <input type="submit" value="Get examples">
+        </form>
+
+        <table class="table-sentences">
+            <caption>
+                <h3>Английские фразы</h3>
+            </caption>
+            <tr>
+                <th>Номер</th>
+                <th>Русская версия / Английская версия</th>
+                <th>Проигрыватель</th>
+            </tr>
+            <tbody data-bind="foreach: records">
+                <tr>
+                    <td class="center">
+                        <input data-bind="event: {change: $parent.showQuestionCheckboxChange}" class="show_question"
+                            type="checkbox">
+                        <span data-bind="text: $data.id"></span></td>
+                    <td>
                         <span data-bind="attr: {tabindex: ($index() + 100001), data_title: $data.rule}"
-                              class='support question_hidden' data-title=''>
+                            class='support question_hidden' data-title=''>
                             <em>?</em>
                         </span>
-                <span data-bind="text: $data.russian" class="question question_hidden"></span>
-                <input data-bind="event: {keyup: $parent.inputFiledKeyUp}, attr: {tabindex: ($index() + 1)}"
-                       class='input-field' type="text" placeholder="Введите перевод">
-                <span data-bind="text: $data.english" class='tip hide'></span><br>
-                <div class='check'></div>
-            </td>
-            <td class="center">
-                <a data-bind="event: {click: $parent.musicButtonClick}" class="music-button"><img
-                        src="img/player_play.png"></a>
-                <audio data-bind="attr: {src: '../words/'+ $data.word + '/' + $data.soundPath}" class="player"
-                       type="audio/mpeg"></audio>
-                <br><input
-                    data-bind="event: {change: $parent.inputRangeInputAndChange, input: $parent.inputRangeInputAndChange}"
-                    type="range" step="0.1" min="0.2" max="2" value="1" class="speed"/>
-                <br><span class="speed-text">1.0</span>
-            </td>
-        </tr>
-        </tbody>
-    </table>
-</section>
+                        <span data-bind="text: $data.russian" class="question question_hidden"></span>
+                        <input data-bind="event: {keyup: $parent.inputFiledKeyUp}, attr: {tabindex: ($index() + 1)}"
+                            class='input-field' type="text" placeholder="Введите перевод">
+                        <span data-bind="text: $data.english" class='tip hide'></span><br>
+                        <div class='check'></div>
+                        <button data-bind="click: $parent.editRecord">Edit</button>
+                    </td>
+                    <td class="center">
+                        <a data-bind="event: {click: $parent.musicButtonClick}" class="music-button"><img
+                                src="img/player_play.png"></a>
+                        <audio data-bind="attr: {src: '../words/'+ $data.word + '/' + $data.soundPath}" class="player"
+                            type="audio/mpeg"></audio>
+                        <br><input
+                            data-bind="event: {change: $parent.inputRangeInputAndChange, input: $parent.inputRangeInputAndChange}"
+                            type="range" step="0.1" min="0.2" max="2" value="1" class="speed" />
+                        <br><span class="speed-text">1.0</span>
+                    </td>
+                </tr>
+            </tbody>
+        </table>
+    </section>
 
-<script type="text/javascript" src="https://ajax.aspnetcdn.com/ajax/knockout/knockout-3.4.0.js"></script>
-<script>
+    <script type="text/javascript" src="https://ajax.aspnetcdn.com/ajax/knockout/knockout-3.4.0.js"></script>
+    <script>
         // The records view model
         function BookmarkViewModel() {
             var self = this;
 
-            self.searchString = ko.observable("learn");
+
+            self.newId = ko.observable("");
+            self.newWord = ko.observable("");
+            self.newRussian = ko.observable("");
+            self.newEnglish = ko.observable("");
+            self.newRule = ko.observable("");
+            self.newSound = ko.observable("");
+
+            self.searchString = ko.observable("base");
             self.records = ko.observableArray([]);
 
             // load records from server: GET on records resource
             self.loadRecordByWord = function () {
                 $.ajax("http://localhost:8080/records/" + self.searchString(), {
-                    type: "get",
+                    type: "GET",
                     success: function (allData) {
                         var json = ko.toJSON(allData);
                         self.records(JSON.parse(json));
                     }
                 });
             };
+
+            self.editRecord = function (record) {
+                self.newId(record.id);
+                self.newEnglish(record.english);
+                self.newRussian(record.russian);
+                self.newWord(record.word);
+                self.newRule(record.rule);
+                self.newSound(record.soundPath);
+            }
+
+            self.updateRecord = function () {
+                var dataJson = '{"id":' + self.newId() + ',"word":"' + self.newWord() + '","russian":"' + self.newRussian() + '","english":"' + self.newEnglish() + '","soundPath":"' + self.newSound() + '","rule":"' + self.newRule() + '"}';
+                console.log(dataJson);
+                $.ajax("http://localhost:8080/records/364", {
+                    data: dataJson,
+                    type: "PUT",
+                    contentType: "application/json",
+                    success: function (allData) {
+                        self.loadRecordByWord();
+                        alert("Record was successful updated");
+                    }
+                });
+            }
 
             self.inputFiledKeyUp = function (record, event) {
                 var $this = $(event.target);
@@ -162,7 +210,7 @@
         ko.options.useOnlyNativeEvents = true;
         ko.applyBindings(new BookmarkViewModel());
 
-</script>
+    </script>
 
 </body>
 
