@@ -1,16 +1,12 @@
 
 function checkTranslate(expected, actual) {
-
     expectedList = expected.split(" ");
     actualList = actual.split(" ");
     resultStr = '';
-
     var expIndex = 0;
     var actIndex = 0;
     var expStr = '';
-
     while (!actualList.length == 0 && !expectedList.length == 0) {
-
         if (expIndex < expectedList.length) {
             expStr = expectedList[expIndex];
         } else {
@@ -32,10 +28,12 @@ function checkTranslate(expected, actual) {
         }
         actualList.splice(actIndex, 1);
     }
-
     actualList.forEach(function (entry) {
         resultStr = resultStr + "<span class='wrong'>" + entry + " " + "</span>";
     });
-
     return resultStr;
+}
+
+function getWithFirstUpperCase(expression) {
+    return expression.charAt(0).toUpperCase() + expression.slice(1);
 }

@@ -134,7 +134,7 @@ public class HtmlCreator {
             "</section>\n" +
             "</body>\n" +
             "<script src=\"js/scripts.js\"></script>\n" +
-            "\n" + "<script src=\"js/check-translate.js\"></script>" +
+            "\n" + "<script src=\"js/utils.js\"></script>" +
             "</html>";
 
     private static String getStringWithFirstCaptialLetter(String source) {

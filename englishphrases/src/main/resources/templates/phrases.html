@@ -12,62 +12,70 @@
 
 <body>
 <section id="content">
-
     <br><br>
-    <label>Id</label>
-    <input data-bind="value: newId" type="text" class='input-field'><br>
-    <label>Word</label>
-    <input data-bind="value: newWord" type="text" class='input-field'><br>
-    <label>Russian</label>
-    <input data-bind="value: newRussian" type="text" class='input-field'><br>
-    <label>English</label>
-    <input data-bind="value: newEnglish" type="text" class='input-field'><br>
-    <label>Sound</label>
-    <input data-bind="value: newSound" type="text" class='input-field'><br>
-    <label>Rule</label>
-    <input data-bind="value: newRule" type="text" class='input-field'><br>
-    <button data-bind="click: updateRecord">Update record</button>
+    <h2 class="center">Training English phrases with native speakers</h2>
 
-
-    <br><br>
-    <form data-bind="submit: loadRecordByWord">
-        <label>Word</label>
-        <input data-bind="value: searchString" type="text">
+    <form class="center" data-bind="submit: loadRecordByWord">
+        <label>Request string: </label>
+        <input id="wordInput" data-bind="value: searchString" type="text" list="wordList">
+        <datalist id="wordList" data-bind="foreach: availableWords">
+            <option data-bind="value: $data"></option>
+        </datalist>
         <input type="submit" value="Get examples">
+        <br><br>
+        <span>Available examples for request "</span>
+        <span data-bind="text:currentSearchString"></span>
+        <span>": </span>
+        <span data-bind="text: (records().length)"></span>
     </form>
+    <br><br>
+
 
     <table class="table-sentences">
-        <caption>
-            <h3>Английские фразы</h3>
-        </caption>
-        <tr>
-            <th>Номер</th>
-            <th>Русская версия / Английская версия</th>
-            <th>Проигрыватель</th>
-        </tr>
         <tbody data-bind="foreach: records">
         <tr>
             <td class="center">
+                <span data-bind="text: ($index()+1)"></span><br>
                 <input data-bind="event: {change: $parent.showQuestionCheckboxChange}" class="show_question"
                        type="checkbox">
-                <span data-bind="text: $data.id"></span></td>
+                <span data-bind="text: $data.id()"></span>
+            </td>
             <td>
-                        <span data-bind="attr: {tabindex: ($index() + 100001), data_title: $data.rule}"
+                        <span data-bind="attr: {tabindex: ($index() + 100001), data_title: $data.rule()}"
                               class='support question_hidden' data-title=''>
                             <em>?</em>
                         </span>
-                <span data-bind="text: $data.russian" class="question question_hidden"></span>
+                <span data-bind="text: $parent.getRusianWithFirstUpperLetter($data.russian())"
+                      class="question question_hidden"></span>
                 <input data-bind="event: {keyup: $parent.inputFiledKeyUp}, attr: {tabindex: ($index() + 1)}"
                        class='input-field' type="text" placeholder="Введите перевод">
-                <span data-bind="text: $data.english" class='tip hide'></span><br>
+                <span data-bind="html: $parent.getEnglishWihtNamesHintsAndFirstUpper($data.english())"></span><br>
                 <div class='check'></div>
-                <button data-bind="click: $parent.editRecord">Edit</button>
+                <button data-bind="click: $parent.showEditor">Show editor</button>
+                <button data-bind="click: $parent.hideEditor, visible: ($data.mode() === 'edit')">Hide editor</button>
+
+                <div data-bind="visible: ($data.mode() === 'edit')">
+                    <label>Id</label>
+                    <input data-bind="value: $parent.newId" type="text" class='input-field'><br>
+                    <label>Word</label>
+                    <input data-bind="value: $parent.newWord" type="text" class='input-field'><br>
+                    <label>Russian</label>
+                    <input data-bind="value: $parent.newRussian" type="text" class='input-field'><br>
+                    <label>English</label>
+                    <input data-bind="value: $parent.newEnglish" type="text" class='input-field'><br>
+                    <label>Sound</label>
+                    <input data-bind="value: $parent.newSoundPath" type="text" class='input-field'><br>
+                    <label>Rule</label>
+                    <input data-bind="value: $parent.newRule" type="text" class='input-field'><br>
+                    <button data-bind="click: $parent.updateRecord">Update record</button>
+                </div>
+
             </td>
             <td class="center">
                 <a data-bind="event: {click: $parent.musicButtonClick}" class="music-button"><img
                         src="img/player_play.png"></a>
-                <audio data-bind="attr: {src: '../words/'+ $data.word + '/' + $data.soundPath}" class="player"
-                       type="audio/mpeg"></audio>
+                <audio data-bind="attr: {src: '../words/'+ $data.word() + '/' + $data.soundPath()}"
+                       class="player" type="audio/mpeg"></audio>
                 <br><input
                     data-bind="event: {change: $parent.inputRangeInputAndChange, input: $parent.inputRangeInputAndChange}"
                     type="range" step="0.1" min="0.2" max="2" value="1" class="speed"/>
@@ -78,22 +86,27 @@
     </table>
 </section>
 
-<script type="text/javascript" src="https://ajax.aspnetcdn.com/ajax/knockout/knockout-3.4.0.js"></script>
+<script type='text/javascript' src='js/knockout-3.5.0.js'></script>
+<script src="js/utils.js"></script>
+
 <script>
-        // The records view model
-        function BookmarkViewModel() {
+
+        var PhrasesViewModel = function () {
             var self = this;
+            self.records = ko.observableArray([]);
 
+            self.availableWords = ko.observableArray(['load', 'suffer', 'base']);
+            self.searchString = ko.observable(self.availableWords()[0]);
+            self.currentSearchString = ko.observable(self.searchString());
+            self.records = ko.observableArray([]);
 
+            // for edit mode
             self.newId = ko.observable("");
             self.newWord = ko.observable("");
             self.newRussian = ko.observable("");
             self.newEnglish = ko.observable("");
             self.newRule = ko.observable("");
-            self.newSound = ko.observable("");
-
-            self.searchString = ko.observable("base");
-            self.records = ko.observableArray([]);
+            self.newSoundPath = ko.observable("");
 
             // load records from server: GET on records resource
             self.loadRecordByWord = function () {
@@ -101,30 +114,64 @@
                     type: "GET",
                     success: function (allData) {
                         var json = ko.toJSON(allData);
-                        self.records(JSON.parse(json));
+                        var recordsFromServer = JSON.parse(json);
+                        var array = [];
+                        recordsFromServer.forEach(element => {
+                            var rec = new Phrase({
+                                id: element.id,
+                                word: element.word,
+                                russian: element.russian,
+                                english: element.english,
+                                rule: element.rule,
+                                soundPath: element.soundPath,
+                                mode: "",
+                                currentAnswer: ""
+                            });
+                            array.push(rec);
+                        });
+                        self.records(array);
                     }
                 });
+                self.currentSearchString(self.searchString());
             };
 
-            self.editRecord = function (record) {
-                self.newId(record.id);
-                self.newEnglish(record.english);
-                self.newRussian(record.russian);
-                self.newWord(record.word);
-                self.newRule(record.rule);
-                self.newSound(record.soundPath);
+            self.showEditor = function (record) {
+
+                self.records().forEach(element => {
+                    if (element.mode() === "edit") {
+                        element.mode("");
+                    }
+                });
+
+                record.mode("edit");
+                self.newId(record.id());
+                self.newEnglish(record.english());
+                self.newRussian(record.russian());
+                self.newWord(record.word());
+                self.newRule(record.rule());
+                self.newSoundPath(record.soundPath());
             }
 
-            self.updateRecord = function () {
-                var dataJson = '{"id":' + self.newId() + ',"word":"' + self.newWord() + '","russian":"' + self.newRussian() + '","english":"' + self.newEnglish() + '","soundPath":"' + self.newSound() + '","rule":"' + self.newRule() + '"}';
+            self.hideEditor = function (record) {
+                record.mode("");
+            }
+
+            self.updateRecord = function (record) {
+                var dataJson = '{"id":' + self.newId() + ',"word":"' + self.newWord() + '","russian":"' + self.newRussian() + '","english":"' + self.newEnglish() + '","soundPath":"' + self.newSoundPath() + '","rule":"' + self.newRule() + '"}';
                 console.log(dataJson);
                 $.ajax("http://localhost:8080/records/" + self.newId(), {
                     data: dataJson,
                     type: "put",
                     contentType: "application/json",
                     success: function (allData) {
-                        self.loadRecordByWord();
                         alert("Record was successful updated");
+                        record.mode("");
+                        record.id(self.newId());
+                        record.word(self.newWord());
+                        record.russian(self.newRussian());
+                        record.english(self.newEnglish());
+                        record.soundPath(self.newSoundPath());
+                        record.rule(self.newRule());
                     }
                 });
             }
@@ -205,16 +252,33 @@
                     $this.closest('tr')[0].getElementsByClassName('support')[0].classList.add('question_hidden');
                 }
             }
+
+            //name.charAt(0).toUpperCase() + name.slice(1)
+            self.getEnglishWihtNamesHintsAndFirstUpper = function (english) {
+                var result = getWithFirstUpperCase(english);
+                return "<span class='tip hide'>"+ result.replace(/(\[.*?\])/g, "</span><span class='tip show'>$1</span><span class='tip hide'>") + "</span>";
+            };
+
+            self.getRusianWithFirstUpperLetter = function (russian){
+                return getWithFirstUpperCase(russian)
+            };
             self.loadRecordByWord();
-        }
+        };
 
+        var Phrase = function (data) {
+            var self = this;
+            self.id = ko.observable(data.id);
+            self.word = ko.observable(data.word);
+            self.russian = ko.observable(data.russian);
+            self.english = ko.observable(data.english);
+            self.rule = ko.observable(data.rule);
+            self.soundPath = ko.observable(data.soundPath);
+            self.mode = ko.observable(data.mode);
+            self.currentAnswer = ko.observable(data.currentAnswer);
+        };
         ko.options.useOnlyNativeEvents = true;
-        ko.applyBindings(new BookmarkViewModel());
-
+        ko.applyBindings(new PhrasesViewModel());
     </script>
-
 </body>
-
-<script src="js/check-translate.js"></script>
 
 </html>

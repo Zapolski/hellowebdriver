@@ -47,6 +47,7 @@
     </build>
     <modules>
         <module>englishphrases</module>
+        <module>springlearn</module>
     </modules>
 
 
