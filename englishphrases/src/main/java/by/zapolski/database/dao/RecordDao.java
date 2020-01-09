@@ -42,6 +42,15 @@ public class RecordDao {
             "JOIN example ON word.id = example.word_id\n" +
             "JOIN rule ON example.rule_id = rule.id;";
 
+    private static final String SQL_SELECT_ALL_WITH_LIKE = "SELECT example.id, word.value, example.russian, example.english, example.sound, rule.value\n" +
+            "FROM word\n" +
+            "JOIN example ON word.id = example.word_id\n" +
+            "JOIN rule ON example.rule_id = rule.id\n" +
+            //"WHERE UPPER(example.english) LIKE UPPER(?)\n" +
+            "WHERE example.english ~ ?\n" +
+            "ORDER BY example.id;";
+
+
 
     @Autowired
     private WordDao wordDao;
@@ -97,6 +106,29 @@ public class RecordDao {
         connectorDB.commit();
         connectorDB.setAutoCommit(true);
         return true;
+    }
+
+    public List<Record> getRecordsByEnglishValueWithSqlLike(String query, int param) {
+        query = "\\m"+query+"\\M";
+        List<Record> result = new ArrayList<>();
+        try (PreparedStatement stmt = connectorDB.getPreparedStatement(SQL_SELECT_ALL_WITH_LIKE)) {
+            stmt.setString(1, query);
+            try (ResultSet rs = stmt.executeQuery()) {
+                while (rs.next()) {
+                    Record record = new Record();
+                    record.setId(rs.getInt(1));
+                    record.setWord(rs.getString(2));
+                    record.setRussian(rs.getString(3));
+                    record.setEnglish(rs.getString(4));
+                    record.setSoundPath(rs.getString(5));
+                    record.setRule(rs.getString(6));
+                    result.add(record);
+                }
+                return result;
+            }
+        } catch (SQLException e) {
+            throw new DaoSystemException("Error during [getRecordsByEnglishValueWithSqlLike] from word", e);
+        }
     }
 
     public List<Record> getRecordsByWord(String queryWord) {

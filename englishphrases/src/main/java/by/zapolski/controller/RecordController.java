@@ -20,10 +20,15 @@ public class RecordController {
         return recordDao.getRecordsByWord(word);
     }
 
+    @GetMapping("/records/query/{query}/{param}")
+    public List<Record> getAllRecordsQueryString(@PathVariable String query, @PathVariable int param) {
+        return recordDao.getRecordsByEnglishValueWithSqlLike(query, param);
+    }
+
     @PutMapping("/records/{id}")
     public ResponseEntity<Record> updateRecord(@RequestBody Record record, @PathVariable int id) {
         Record recordsById = recordDao.getRecordsById(id);
-        if (recordsById.getId() == 0){
+        if (recordsById.getId() == 0) {
             return ResponseEntity.notFound().build();
         }
         try {
@@ -33,5 +38,6 @@ public class RecordController {
         }
         return ResponseEntity.noContent().build();
     }
+
 
 }
