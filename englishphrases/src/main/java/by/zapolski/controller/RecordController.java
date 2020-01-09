@@ -1,6 +1,7 @@
 package by.zapolski.controller;
 
 import by.zapolski.database.dao.RecordDao;
+import by.zapolski.database.dao.WordDao;
 import by.zapolski.database.model.Record;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
@@ -14,6 +15,9 @@ public class RecordController {
 
     @Autowired
     private RecordDao recordDao;
+
+    @Autowired
+    private WordDao wordDao;
 
     @GetMapping("/records/{word}")
     public List<Record> getAllRecordsByWord(@PathVariable String word) {

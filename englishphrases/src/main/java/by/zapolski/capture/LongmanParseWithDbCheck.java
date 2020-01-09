@@ -1,6 +1,10 @@
+package by.zapolski.capture;
+
+import by.zapolski.capture.model.Translate;
+import by.zapolski.database.dao.ConnectorDB;
+import by.zapolski.database.dao.WordDao;
 import com.google.gson.Gson;
 import javazoom.jl.player.Player;
-import model.Translate;
 import org.apache.poi.hssf.usermodel.HSSFSheet;
 import org.apache.poi.hssf.usermodel.HSSFWorkbook;
 import org.apache.poi.ss.usermodel.Cell;
@@ -17,7 +21,7 @@ import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.util.List;
 
-public class LongmanParse {
+public class LongmanParseWithDbCheck {
 
     private static WebDriver driver;
     private static final int WAIT_TIMEOUT_SECONDS = 10;
@@ -41,9 +45,18 @@ public class LongmanParse {
         Cell cell;
         Row row;
 
+        ConnectorDB connectorDB = new ConnectorDB();
+        WordDao wordDao = new WordDao(connectorDB);
+
         List<String> words = Files.readAllLines(Paths.get(LIST_WORDS));
         for (int i = 0; i < words.size(); i++) {
+
+
             String word = words.get(i).toLowerCase();
+            if (wordDao.getByValue(word) != null) {
+                System.out.println("Word [" + word + "] has already existed in DB. Skipped.");
+                continue;
+            }
             if (word.startsWith("+")) {
                 continue;
             }
@@ -53,7 +66,7 @@ public class LongmanParse {
                 new File(fileDir).mkdir();
                 System.out.printf("%04d --------> %s%n", i, word);
             } else {
-                System.out.printf("%04d --------> %s (слово уже в базе)%n", i, word);
+                System.out.printf("%04d --------> %s (directory has already existed). Skipped.%n", i, word);
                 continue;
             }
 
@@ -62,7 +75,7 @@ public class LongmanParse {
             new WebDriverWait(driver, 10).until(CustomConditions.jQueryAJAXsCompleted());
 
             try {
-                List<WebElement> examplesList = waitForAllElementsLoacatedBy(xpathExamples);
+                List<WebElement> examplesList = waitForAllElementsLocatedBy(xpathExamples);
                 int index = 1;
                 for (WebElement element : examplesList) {
                     String englishString = element.getText().trim();
@@ -84,10 +97,11 @@ public class LongmanParse {
                 }
 
             } catch (TimeoutException | NoSuchElementException e) {
-                System.out.println("---> fail for word: " + word);
+                System.out.println("---> Longman fail for word: " + word);
             }
 
         }
+        connectorDB.close();
 
         // Write File
         File tempFile = new File(DATABASE_FILE);
@@ -134,7 +148,7 @@ public class LongmanParse {
         connection.setRequestMethod("GET");
         BufferedReader in = new BufferedReader(new InputStreamReader(connection.getInputStream()));
         String inputLine;
-        StringBuffer response = new StringBuffer();
+        StringBuilder response = new StringBuilder();
         while ((inputLine = in.readLine()) != null) {
             response.append(inputLine);
         }
@@ -143,7 +157,7 @@ public class LongmanParse {
         return response.toString();
     }
 
-    private static List<WebElement> waitForAllElementsLoacatedBy(By by) {
+    private static List<WebElement> waitForAllElementsLocatedBy(By by) {
         return new WebDriverWait(driver, WAIT_TIMEOUT_SECONDS)
                 .until(ExpectedConditions.presenceOfAllElementsLocatedBy(by));
     }
