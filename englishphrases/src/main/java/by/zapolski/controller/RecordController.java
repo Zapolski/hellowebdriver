@@ -3,6 +3,7 @@ package by.zapolski.controller;
 import by.zapolski.database.dao.RecordDao;
 import by.zapolski.database.dao.WordDao;
 import by.zapolski.database.model.Record;
+import by.zapolski.database.model.Word;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -22,6 +23,11 @@ public class RecordController {
     @GetMapping("/records/{word}")
     public List<Record> getAllRecordsByWord(@PathVariable String word) {
         return recordDao.getRecordsByWord(word);
+    }
+
+    @GetMapping("/records/words")
+    public List<Word> getAllWords() {
+        return wordDao.getAll();
     }
 
     @GetMapping("/records/query/{query}/{param}")
