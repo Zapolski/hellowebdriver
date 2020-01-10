@@ -46,10 +46,15 @@ public class RecordDao {
             "FROM word\n" +
             "JOIN example ON word.id = example.word_id\n" +
             "JOIN rule ON example.rule_id = rule.id\n" +
-            //"WHERE UPPER(example.english) LIKE UPPER(?)\n" +
             "WHERE example.english ~ ?\n" +
             "ORDER BY example.id;";
 
+    private static final String SQL_SELECT_ALL_WITH_ILIKE = "SELECT example.id, word.value, example.russian, example.english, example.sound, rule.value\n" +
+            "FROM word\n" +
+            "JOIN example ON word.id = example.word_id\n" +
+            "JOIN rule ON example.rule_id = rule.id\n" +
+            "WHERE example.english ~* ?\n" +
+            "ORDER BY example.id;";
 
 
     @Autowired
@@ -109,9 +114,18 @@ public class RecordDao {
     }
 
     public List<Record> getRecordsByEnglishValueWithSqlLike(String query, int param) {
-        query = "\\m"+query+"\\M";
+        query = "\\m" + query + "\\M";
         List<Record> result = new ArrayList<>();
-        try (PreparedStatement stmt = connectorDB.getPreparedStatement(SQL_SELECT_ALL_WITH_LIKE)) {
+        String sql;
+        switch (param) {
+            case 1:
+                sql = SQL_SELECT_ALL_WITH_ILIKE;
+                break;
+            default:
+                sql = SQL_SELECT_ALL_WITH_LIKE;
+        }
+
+        try (PreparedStatement stmt = connectorDB.getPreparedStatement(sql)) {
             stmt.setString(1, query);
             try (ResultSet rs = stmt.executeQuery()) {
                 while (rs.next()) {
