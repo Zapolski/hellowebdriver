@@ -12,17 +12,21 @@ public class ServiceUtils {
     private ServiceUtils() {
     }
 
-    private static final String WORDS_PATH = "d:\\test\\English\\words";
+    private static final String WORDS_PATH = "d:\\Test\\EnglishPhrases\\words";
 
-    public static void checkEmptyDirectoriesWithWords() {
+    // бежим по каталогам с озвучкой и удаляем пустые каталоги, если actionFlag = true;
+    public static void checkEmptyDirectoriesWithWords(boolean actionFlag) {
         File directory = new File(WORDS_PATH);
         int dirCount = 0;
         int dirRemovedCount = 0;
         for (File currentDir : directory.listFiles()) {
             dirCount++;
             if (currentDir.isDirectory() && currentDir.listFiles().length == 0) {
-                //currentDir.delete();
-                System.out.println("Empty catalog: [" + currentDir.getName() + "] is removed");
+                System.out.println("Empty catalog: [" + currentDir.getName() + "]");
+                if (actionFlag) {
+                    currentDir.delete();
+                    System.out.println("Empty catalog: [" + currentDir.getName() + "] has been removed");
+                }
                 dirRemovedCount++;
                 dirCount--;
             }
@@ -31,6 +35,7 @@ public class ServiceUtils {
         System.out.println("    Removed empty directories: " + dirRemovedCount);
     }
 
+    // бежит по файлам и смотрить есть ли в базе запись
     public static void compareSoundFilesWithDbRecords() {
         ConnectorDB connectorDB = new ConnectorDB();
         RecordDao recordDao = new RecordDao(connectorDB);
@@ -52,11 +57,12 @@ public class ServiceUtils {
             }
         }
         System.out.println("Total files with sound: " + fileCount);
-        System.out.println("    Missing records: " + missedCount);
+        System.out.println("    Amount of missed records in DB for these files: " + missedCount);
         connectorDB.close();
     }
 
-    public static void compareDbRecordsWithFiles() {
+    // бежит по базе и смотрит если файлы с озвучкой на диске и удаляем записи из базы если actionFlag = true;
+    public static void compareDbRecordsWithFiles(boolean actionFlag) {
         ConnectorDB connectorDB = new ConnectorDB();
         RecordDao recordDao = new RecordDao(connectorDB);
         List<Record> records = recordDao.getAll();
@@ -65,19 +71,22 @@ public class ServiceUtils {
         for (Record record : records) {
             File file = new File(WORDS_PATH + "\\" + record.getWord() + "\\" + record.getSoundPath());
             if (!file.exists()) {
-                recordDao.removeById(record.getId());
-                count++;
-                System.out.println("For record with sound file [" + record.getSoundPath() + "] sound file is missing.");
+                System.out.println("For record [id=" + record.getId() + "] with sound file [" + record.getSoundPath() + "] sound file is missing.");
+                if (actionFlag) {
+                    System.out.println("    Record [id=" + record.getId() + "] with sound file [" + record.getSoundPath() + "] has been removed.");
+                    recordDao.removeById(record.getId());
+                    count++;
+                }
             }
         }
-        System.out.println("Total records: " + records.size());
-        System.out.println("    Missing files: " + count + " was removed");
+        System.out.println("Current amount of records in DB: " + (records.size() - count));
+        System.out.println("    Actions: " + count + " records from DB was removed.");
         connectorDB.close();
     }
 
     public static void main(String[] args) {
-        ServiceUtils.checkEmptyDirectoriesWithWords();
+        ServiceUtils.checkEmptyDirectoriesWithWords(false);
         ServiceUtils.compareSoundFilesWithDbRecords();
-        ServiceUtils.compareDbRecordsWithFiles();
+        ServiceUtils.compareDbRecordsWithFiles(true);
     }
 }
