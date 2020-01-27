@@ -71,7 +71,7 @@ public class LongmanParseWithDbCheck {
             }
 
             //если фразовый глагол, то через черточку в адресной строке
-            driver.get("https://www.ldoceonline.com/dictionary/" + word.replaceAll(" ", "-"));
+            driver.get("https://www.ldoceonline.com/dictionary/" + word.replace(" ", "-"));
             new WebDriverWait(driver, 10).until(CustomConditions.jQueryAJAXsCompleted());
 
             try {
@@ -139,7 +139,7 @@ public class LongmanParseWithDbCheck {
     private static String getTranslate(String sourceText) throws IOException {
 
         String key = "trnsl.1.1.20190711T105344Z.5d3d73ddd6ee8245.446444e44948bcf43a6909469fa9bfb94b8c7e11";
-        String text = sourceText.trim().replaceAll(" ", "%20");
+        String text = sourceText.trim().replace(" ", "%20");
         String lang = "en-ru";
 
         String url = String.format("https://translate.yandex.net/api/v1.5/tr.json/translate?key=%s&text=%s&lang=%s", key, text, lang);
@@ -162,12 +162,12 @@ public class LongmanParseWithDbCheck {
                 .until(ExpectedConditions.presenceOfAllElementsLocatedBy(by));
     }
 
-    private static WebElement waitForElementLoacatedBy(By by) {
+    private static WebElement waitForElementLocatedBy(By by) {
         return new WebDriverWait(driver, WAIT_TIMEOUT_SECONDS)
                 .until(ExpectedConditions.presenceOfElementLocated(by));
     }
 
-    private static void Sound(String url) {
+    private static void sound(String url) {
         try {
             InputStream fis = new URL(url).openStream();
             Player playMP3 = new Player(fis);
@@ -181,15 +181,14 @@ public class LongmanParseWithDbCheck {
     private static void downloadUsingStream(String urlStr, String file) {
         try {
             URL url = new URL(urlStr);
-            BufferedInputStream bis = new BufferedInputStream(url.openStream());
-            FileOutputStream fis = new FileOutputStream(file);
-            byte[] buffer = new byte[1024];
-            int count = 0;
-            while ((count = bis.read(buffer, 0, 1024)) != -1) {
-                fis.write(buffer, 0, count);
+            try (BufferedInputStream bis = new BufferedInputStream(url.openStream());
+                 FileOutputStream fis = new FileOutputStream(file);) {
+                byte[] buffer = new byte[1024];
+                int count = 0;
+                while ((count = bis.read(buffer, 0, 1024)) != -1) {
+                    fis.write(buffer, 0, count);
+                }
             }
-            fis.close();
-            bis.close();
         } catch (IOException e) {
             e.printStackTrace();
         }
