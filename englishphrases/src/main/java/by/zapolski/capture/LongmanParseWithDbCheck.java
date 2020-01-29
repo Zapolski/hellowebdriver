@@ -24,18 +24,17 @@ import java.util.List;
 public class LongmanParseWithDbCheck {
 
     private static WebDriver driver;
-    private static final int WAIT_TIMEOUT_SECONDS = 10;
+    private static final int WAIT_TIMEOUT_SECONDS = 2;
 
     private static By xpathExamples = By.xpath("//*[ (./*[@data-src-mp3]) and contains(@class,'EXAMPLE')]");
     private static By xpathMp3Link = By.xpath("./*[@data-src-mp3]");
 
     private static final String DATABASE_FILE = "d:\\Test\\EnglishPhrases\\info\\new\\newWords.xls";
-    private static final String LIST_WORDS = "d:\\Test\\EnglishPhrases\\info\\new\\newWords.txt";
+    private static final String LIST_WORDS = "d:\\test\\EnglishPhrases\\info\\new\\newWords.txt";
     private static final String DIR_WITH_SOUNDS = "d:/Test/EnglishPhrases/words/";
 
     public static void main(String[] args) throws IOException {
 
-        driver = new ChromeDriver();
         File file = new File(DATABASE_FILE);
         FileInputStream inputStream = new FileInputStream(file);
 
@@ -48,69 +47,76 @@ public class LongmanParseWithDbCheck {
         ConnectorDB connectorDB = new ConnectorDB();
         WordDao wordDao = new WordDao(connectorDB);
 
+        driver = new ChromeDriver();
         List<String> words = Files.readAllLines(Paths.get(LIST_WORDS));
-        for (int i = 0; i < words.size(); i++) {
 
-
-            String word = words.get(i).toLowerCase();
-            if (wordDao.getByValue(word) != null) {
-                System.out.println("Word [" + word + "] has already existed in DB. Skipped.");
-                continue;
-            }
-            if (word.startsWith("+")) {
-                continue;
-            }
-
-            String fileDir = DIR_WITH_SOUNDS + word + "/";
-            if (!new File(fileDir).exists()) {
-                new File(fileDir).mkdir();
-                System.out.printf("%04d --------> %s%n", i, word);
-            } else {
-                System.out.printf("%04d --------> %s (directory has already existed). Skipped.%n", i, word);
-                continue;
-            }
-
-            //если фразовый глагол, то через черточку в адресной строке
-            driver.get("https://www.ldoceonline.com/dictionary/" + word.replaceAll(" ", "-"));
-            new WebDriverWait(driver, 10).until(CustomConditions.jQueryAJAXsCompleted());
-
-            try {
-                List<WebElement> examplesList = waitForAllElementsLocatedBy(xpathExamples);
-                int index = 1;
-                for (WebElement element : examplesList) {
-                    String englishString = element.getText().trim();
-                    WebElement mp3Link = element.findElement(xpathMp3Link);
-                    String russianString = getRussianSentence(englishString);
-                    String mp3Url = mp3Link.getAttribute("data-src-mp3");
-                    String fileName = word + "-" + String.format("%04d.mp3", index++);
-                    downloadUsingStream(mp3Url, fileDir + fileName);
-
-                    row = sheet.createRow(rowNum++);
-                    cell = row.createCell(0);
-                    cell.setCellValue(word);
-                    cell = row.createCell(1);
-                    cell.setCellValue(russianString);
-                    cell = row.createCell(2);
-                    cell.setCellValue(englishString);
-                    cell = row.createCell(3);
-                    cell.setCellValue(fileName);
+        try {
+            for (int i = 0; i < words.size(); i++) {
+                String word = words.get(i).toLowerCase();
+                if (wordDao.getByValue(word) != null) {
+                    System.out.println("Word [" + word + "] has already existed in DB. Skipped.");
+                    continue;
+                }
+                if (word.startsWith("+")) {
+                    continue;
                 }
 
-            } catch (TimeoutException | NoSuchElementException e) {
-                System.out.println("---> Longman fail for word: " + word);
+                String fileDir = DIR_WITH_SOUNDS + word + "/";
+                if (!new File(fileDir).exists()) {
+                    new File(fileDir).mkdir();
+                    System.out.printf("%04d --------> %s%n", i, word);
+                } else {
+                    System.out.printf("%04d --------> %s (directory has already existed). Skipped.%n", i, word);
+                    continue;
+                }
+
+                //если фразовый глагол, то через черточку в адресной строке
+                driver.get("https://www.ldoceonline.com/dictionary/" + word.replaceAll(" ", "-"));
+                new WebDriverWait(driver, 10).until(CustomConditions.jQueryAJAXsCompleted());
+
+                try {
+                    List<WebElement> examplesList = waitForAllElementsLocatedBy(xpathExamples);
+                    int index = 1;
+                    for (WebElement element : examplesList) {
+                        String englishString = element.getText().trim();
+                        WebElement mp3Link = element.findElement(xpathMp3Link);
+                        String russianString = getRussianSentence(englishString);
+                        String mp3Url = mp3Link.getAttribute("data-src-mp3");
+                        String fileName = word + "-" + String.format("%04d.mp3", index++);
+                        downloadUsingStream(mp3Url, fileDir + fileName);
+
+                        row = sheet.createRow(rowNum++);
+                        cell = row.createCell(0);
+                        cell.setCellValue(word);
+                        cell = row.createCell(1);
+                        cell.setCellValue(russianString);
+                        cell = row.createCell(2);
+                        cell.setCellValue(englishString);
+                        cell = row.createCell(3);
+                        cell.setCellValue(fileName);
+                    }
+                } catch (TimeoutException | NoSuchElementException e) {
+                    System.out.println("---> Longman fail for word: " + word);
+                    if (new File(fileDir).exists()) {
+                        if (new File(fileDir).delete()) {
+                            System.out.println("Empty directory has been removed.");
+                        }
+                    }
+                }
             }
-
+            connectorDB.close();
+        } catch (Exception e) {
+            e.printStackTrace();
+        } finally {
+            // Write File
+            File tempFile = new File(DATABASE_FILE);
+            FileOutputStream out = new FileOutputStream(tempFile);
+            workbook.write(out);
+            out.flush();
+            out.close();
+            driver.quit();
+            workbook.close();
         }
-        connectorDB.close();
-
-        // Write File
-        File tempFile = new File(DATABASE_FILE);
-        FileOutputStream out = new FileOutputStream(tempFile);
-        workbook.write(out);
-        out.flush();
-        out.close();
-        driver.quit();
-        workbook.close();
     }
 
     private static String getRussianSentence(String englishString) {
