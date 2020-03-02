@@ -32,7 +32,7 @@ public class ServiceUtils {
             }
         }
         System.out.println("Total filled directories with words: " + dirCount);
-        System.out.println("    Removed empty directories: " + dirRemovedCount);
+        System.out.println("    " + (actionFlag ? "Removed" : "Found out") + " empty directories: " + dirRemovedCount);
     }
 
     // бежит по файлам и смотрить есть ли в базе запись
@@ -85,8 +85,8 @@ public class ServiceUtils {
     }
 
     public static void main(String[] args) {
-        //ServiceUtils.checkEmptyDirectoriesWithWords(true);
-        //ServiceUtils.compareSoundFilesWithDbRecords();
-        ServiceUtils.compareDbRecordsWithFiles(false);
+        ServiceUtils.checkEmptyDirectoriesWithWords(false);
+        ServiceUtils.compareSoundFilesWithDbRecords();
+        ServiceUtils.compareDbRecordsWithFiles(true);
     }
 }

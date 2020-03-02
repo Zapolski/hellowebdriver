@@ -30,7 +30,7 @@ public class LongmanParseWithDbCheck {
     private static By xpathMp3Link = By.xpath("./*[@data-src-mp3]");
 
     private static final String DATABASE_FILE = "d:\\Test\\EnglishPhrases\\info\\new\\newWords.xls";
-    private static final String LIST_WORDS = "d:\\test\\EnglishPhrases\\info\\new\\newWords.txt";
+    private static final String LIST_WORDS = "d:\\test\\EnglishPhrases\\info\\new\\headwords 10th 1000.txt";
     private static final String DIR_WITH_SOUNDS = "d:/Test/EnglishPhrases/words/";
 
     public static void main(String[] args) throws IOException {

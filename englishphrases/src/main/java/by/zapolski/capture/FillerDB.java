@@ -16,6 +16,7 @@ import java.util.List;
 public class FillerDB {
 
     private ConnectorDB connectorDB;
+    private static final String EXCEL_FILE = "d:\\test\\EnglishPhrases\\info\\new\\newWords.xls";
 
     public FillerDB(ConnectorDB connectorDB) {
         this.connectorDB = connectorDB;
@@ -37,7 +38,7 @@ public class FillerDB {
         }
     }
 
-    private static Record getTaskRecordFromXlsSheet(HSSFSheet sheet, int i) {
+    private Record getTaskRecordFromXlsSheet(HSSFSheet sheet, int i) {
         Record result = new Record();
         Row row = sheet.getRow(i);
         result.setWord(row.getCell(0).getStringCellValue());
@@ -59,7 +60,7 @@ public class FillerDB {
     public static void main(String[] args) throws IOException, SQLException {
         try (ConnectorDB connectorDB = new ConnectorDB()) {
             FillerDB fillerDB = new FillerDB(connectorDB);
-            fillerDB.fillFromExcelFile("phrases.xls");
+            fillerDB.fillFromExcelFile(EXCEL_FILE);
         }
     }
 }
