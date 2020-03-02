@@ -22,7 +22,6 @@ public class RecordController {
 
     @GetMapping("/records/{word}")
     public List<Record> getAllRecordsByWord(@PathVariable String word) {
-        System.out.println("Inside gettAllRecordsByWord()");
         return recordDao.getRecordsByWord(word);
     }
 
