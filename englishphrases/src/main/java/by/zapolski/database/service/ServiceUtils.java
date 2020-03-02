@@ -85,8 +85,8 @@ public class ServiceUtils {
     }
 
     public static void main(String[] args) {
-        ServiceUtils.checkEmptyDirectoriesWithWords(false);
-        ServiceUtils.compareSoundFilesWithDbRecords();
-        ServiceUtils.compareDbRecordsWithFiles(true);
+        //ServiceUtils.checkEmptyDirectoriesWithWords(true);
+        //ServiceUtils.compareSoundFilesWithDbRecords();
+        ServiceUtils.compareDbRecordsWithFiles(false);
     }
 }
