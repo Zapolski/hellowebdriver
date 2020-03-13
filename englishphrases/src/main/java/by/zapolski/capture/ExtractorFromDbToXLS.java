@@ -43,7 +43,7 @@ public class ExtractorFromDbToXLS {
             row.createCell(4).setCellValue("Rule");
 
             for (String word : words) {
-                proceedWord(word, workbook);
+                writeRecordsInWorkbook(word, workbook);
             }
 
             LOG.log(Level.INFO, "Writing filled file on disk, destination file: [{0}]", destinationPath);
@@ -55,7 +55,7 @@ public class ExtractorFromDbToXLS {
         }
     }
 
-    private void proceedWord(String word, HSSFWorkbook workbook) {
+    private void writeRecordsInWorkbook(String word, HSSFWorkbook workbook) {
         RecordDao recordDao = new RecordDao(connectorDB);
         LOG.log(Level.INFO, "Processing word: [{0}]", word);
         List<Record> recordsByWord = recordDao.getRecordsByWord(word);
