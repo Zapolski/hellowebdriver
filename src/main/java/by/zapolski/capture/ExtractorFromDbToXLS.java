@@ -2,7 +2,9 @@ package by.zapolski.capture;
 
 import by.zapolski.database.dao.ConnectorDB;
 import by.zapolski.database.dao.RecordDao;
+import by.zapolski.database.dao.WordDao;
 import by.zapolski.database.model.Record;
+import by.zapolski.database.model.Word;
 import org.apache.poi.hssf.usermodel.HSSFSheet;
 import org.apache.poi.hssf.usermodel.HSSFWorkbook;
 import org.apache.poi.ss.usermodel.Cell;
@@ -15,6 +17,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+import java.util.stream.Collectors;
 
 public class ExtractorFromDbToXLS {
 
@@ -51,6 +54,7 @@ public class ExtractorFromDbToXLS {
                 workbook.write(out);
             } catch (IOException e) {
                 LOG.log(Level.INFO, "Error during writing xls-file.", e);
+
             }
         }
     }
@@ -84,11 +88,9 @@ public class ExtractorFromDbToXLS {
 
     public static void main(String[] args) throws IOException {
         try (ConnectorDB connectorDB = new ConnectorDB()) {
-            ExtractorFromDbToXLS extractor = new ExtractorFromDbToXLS(connectorDB, "d:\\Test\\EnglishPhrases\\info\\extract.xls");
-            List<String> words = new ArrayList<>();
-            words.add("abandon");
-            words.add("abolish");
-            words.add("asdf");
+            ExtractorFromDbToXLS extractor = new ExtractorFromDbToXLS(connectorDB, "d:\\test\\EnglishPhrases\\info\\backup.xls");
+            WordDao wordDao = new WordDao(connectorDB);
+            List<String> words = wordDao.getAll().stream().map(Word::getValue).collect(Collectors.toList());
             extractor.extract(words);
         }
     }

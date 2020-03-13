@@ -16,14 +16,6 @@ import static org.springframework.core.Ordered.HIGHEST_PRECEDENCE;
 @SpringBootApplication(proxyBeanMethods = false)
 public class PhrasesApplication {
 
-//    @Bean
-//    public FilterRegistrationBean commonsRequestLoggingFilter() {
-//        System.out.println("Setting up CORSFilter");
-//        final FilterRegistrationBean registrationBean = new FilterRegistrationBean();
-//        registrationBean.setFilter(new CORSFilter());
-//        return registrationBean;
-//    }
-
     @Bean
     public FilterRegistrationBean corsFilter() {
         UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
