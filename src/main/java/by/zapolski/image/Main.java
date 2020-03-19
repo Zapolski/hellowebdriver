@@ -1,6 +1,5 @@
 package by.zapolski.image;
 
-import org.apache.log4j.Level;
 import org.apache.log4j.Logger;
 
 import javax.imageio.ImageIO;
@@ -14,7 +13,6 @@ import java.security.NoSuchAlgorithmException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
-
 import java.util.stream.Collectors;
 
 public class Main {
@@ -51,20 +49,20 @@ public class Main {
             for (File file : imgFiles) {
                 String checkSum = getCheckSum(ALGORITHM, file);
                 if (!checkSumsList.contains(checkSum)) {
-                    //LOG.log(Level.INFO, "\tFound out a new file {0}!", file.getName());
+                    LOG.info(String.format("\tFound out a new file %s!", file.getName()));
 
                     String newName = getNewFileName(file, checkSum);
                     String newPath = DESTINATION_PATH + File.separator + newName;
                     File newFile = new File(newPath);
                     Files.copy(file.toPath(), newFile.toPath());
 
-                    //LOG.log(Level.INFO, "\tNew file has already copied with name: {0}", newFile.getName());
+                    LOG.info(String.format("\tNew file has already copied with name: %s", newFile.getName()));
                 } else {
-                    //LOG.log(Level.INFO, "File {0} has already existed!", file.getName());
+                    LOG.info(String.format("File %s has already existed!", file.getName()));
                 }
             }
         } else {
-            //LOG.log(Level.INFO, "Source directory {0} is empty.", SOURCE_PATH);
+            LOG.info(String.format("Source directory %s is empty.", SOURCE_PATH));
         }
     }
 
