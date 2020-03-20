@@ -23,17 +23,9 @@ public class RecordController {
     @Autowired
     private RecordDao recordDao;
 
-    @Autowired
-    private WordDao wordDao;
-
     @GetMapping("/records/{word}")
     public List<Record> getAllRecordsByWord(@PathVariable String word) {
-        return recordDao.getRecordsByWord(word);
-    }
-
-    @GetMapping("/records/words")
-    public List<Word> getAllWords() {
-        return wordDao.getAll();
+        return recordService.getRecordsByWord(word);
     }
 
     @GetMapping("/records/query/{query}/{param}")
