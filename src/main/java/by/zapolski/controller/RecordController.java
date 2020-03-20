@@ -4,15 +4,21 @@ import by.zapolski.database.dao.RecordDao;
 import by.zapolski.database.dao.WordDao;
 import by.zapolski.database.model.Record;
 import by.zapolski.database.model.Word;
+import by.zapolski.service.RecordService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.sql.SQLException;
 import java.util.List;
+import java.util.Set;
 
 @RestController
 public class RecordController {
+
+    @Autowired
+    private RecordService recordService;
 
     @Autowired
     private RecordDao recordDao;
@@ -47,6 +53,11 @@ public class RecordController {
             e.printStackTrace();
         }
         return ResponseEntity.noContent().build();
+    }
+
+    @GetMapping("records")
+    public ResponseEntity<Set<Record>> getRecordsByIds(@RequestParam int[] ids) {
+        return new ResponseEntity<>(recordService.getRecordsByIds(ids), HttpStatus.OK);
     }
 
 

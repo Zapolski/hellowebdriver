@@ -16,7 +16,7 @@ import java.util.List;
 public class FillerDB {
 
     private ConnectorDB connectorDB;
-    private static final String EXCEL_FILE = "d:\\test\\EnglishPhrases\\info\\new\\newWords.xls";
+    private static final String EXCEL_FILE = "d:/test/EnglishPhrases/info/current.xls";
 
     public FillerDB(ConnectorDB connectorDB) {
         this.connectorDB = connectorDB;
