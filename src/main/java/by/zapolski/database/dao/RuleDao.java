@@ -77,7 +77,7 @@ public class RuleDao implements Dao<Integer, Rule> {
     @Override
     public boolean update(Rule entity) {
         boolean flag = false;
-        try (PreparedStatement stmt = conn.getPreparedStatement(SQL_UPDATE_BY_ID);) {
+        try (PreparedStatement stmt = conn.getPreparedStatement(SQL_UPDATE_BY_ID)) {
             stmt.setString(1, entity.getValue());
             stmt.setInt(2, entity.getId());
             stmt.executeUpdate();

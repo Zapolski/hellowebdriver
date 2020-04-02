@@ -1,9 +1,7 @@
 package by.zapolski.controller;
 
 import by.zapolski.database.dao.RecordDao;
-import by.zapolski.database.dao.WordDao;
 import by.zapolski.database.model.Record;
-import by.zapolski.database.model.Word;
 import by.zapolski.service.RecordService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;

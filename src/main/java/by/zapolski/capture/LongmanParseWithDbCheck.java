@@ -53,8 +53,11 @@ public class LongmanParseWithDbCheck {
         try {
             for (int i = 0; i < words.size(); i++) {
                 String word = words.get(i).toLowerCase();
+                if (word.isEmpty()) {
+                    continue;
+                }
                 if (wordDao.getByValue(word) != null) {
-                    System.out.println("Word [" + word + "] has already existed in DB. Skipped.");
+                    System.out.printf("%04d --------> Word [%s] has already existed in DB. Skipped.%n", i, word);
                     continue;
                 }
                 if (word.startsWith("+")) {
@@ -64,7 +67,7 @@ public class LongmanParseWithDbCheck {
                 String fileDir = DIR_WITH_SOUNDS + word + "/";
                 if (!new File(fileDir).exists()) {
                     new File(fileDir).mkdir();
-                    System.out.printf("%04d --------> %s%n", i, word);
+                    System.out.printf("%04d --------> Processing [%s]... ", i, word);
                 } else {
                     System.out.printf("%04d --------> %s (directory has already existed). Skipped.%n", i, word);
                     continue;
@@ -95,11 +98,12 @@ public class LongmanParseWithDbCheck {
                         cell = row.createCell(3);
                         cell.setCellValue(fileName);
                     }
+                    System.out.printf("Found [%s] record(s).%n", examplesList.size());
                 } catch (TimeoutException | NoSuchElementException e) {
-                    System.out.println("---> Longman fail for word: " + word);
+                    System.out.printf("Longman fail for word [%s].%n", word);
                     if (new File(fileDir).exists()) {
                         if (new File(fileDir).delete()) {
-                            System.out.println("Empty directory has been removed.");
+                            System.out.printf("     --------> Empty directory [%s] has been removed.%n", fileDir);
                         }
                     }
                 }
@@ -133,15 +137,15 @@ public class LongmanParseWithDbCheck {
     }
 
     /**
-    *   https://translate.yandex.net/api/v1.5/tr.json/translate
-    *   ? [key=<API-ключ>]
-    *   & [text=<переводимый текст>]
-    *   & [lang=<направление перевода>]
-    *   & [format=<формат текста>]
-    *   & [options=<опции перевода>]
-    *   & [callback=<имя callback-функции>]
-    *   trnsl.1.1.20190711T105344Z.5d3d73ddd6ee8245.446444e44948bcf43a6909469fa9bfb94b8c7e11
-    **/
+     * https://translate.yandex.net/api/v1.5/tr.json/translate
+     * ? [key=<API-ключ>]
+     * & [text=<переводимый текст>]
+     * & [lang=<направление перевода>]
+     * & [format=<формат текста>]
+     * & [options=<опции перевода>]
+     * & [callback=<имя callback-функции>]
+     * trnsl.1.1.20190711T105344Z.5d3d73ddd6ee8245.446444e44948bcf43a6909469fa9bfb94b8c7e11
+     **/
     private static String getTranslate(String sourceText) throws IOException {
 
         String key = "trnsl.1.1.20190711T105344Z.5d3d73ddd6ee8245.446444e44948bcf43a6909469fa9bfb94b8c7e11";
