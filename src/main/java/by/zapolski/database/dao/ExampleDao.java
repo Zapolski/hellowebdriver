@@ -17,9 +17,9 @@ public class ExampleDao implements Dao<Integer, Example> {
     private static final String TABLE_NAME = "example";
 
     private static final String SQL_SELECT_ALL = "SELECT * FROM example";
-    private static final String SQL_SELECT_BY_ID = "SELECT id,word_id,russian,english,sound,rule_id FROM example WHERE id = ?";
-    private static final String SQL_INSERT_RECORD = "INSERT INTO example (word_id,russian,english,sound,rule_id) VALUES (?,?,?,?,?)";
-    private static final String SQL_UPDATE_BY_ID = "UPDATE example SET word_id = ?, russian = ?, english = ?,sound = ?,rule_id = ? where id = ?;";
+    private static final String SQL_SELECT_BY_ID = "SELECT id,word_id,russian,english,sound,rule_id,rank FROM example WHERE id = ?";
+    private static final String SQL_INSERT_RECORD = "INSERT INTO example (word_id,russian,english,sound,rule_id,rank) VALUES (?,?,?,?,?,?)";
+    private static final String SQL_UPDATE_BY_ID = "UPDATE example SET word_id = ?, russian = ?, english = ?,sound = ?, rule_id = ?, rank = ? where id = ?;";
     private static final String SQL_DELETE_BY_ID = "DELETE FROM example WHERE id = ?;";
     private static final String SQL_SELECT_ALL_BY_WORD_ID = "select * from example where word_id = ?;";
     private static final String SQL_CLEAR_TABLE = "DELETE FROM " + TABLE_NAME;
@@ -38,7 +38,7 @@ public class ExampleDao implements Dao<Integer, Example> {
     public List<Example> getAll() {
         List<Example> list = new ArrayList<>();
         try (PreparedStatement stmt = conn.getPreparedStatement(SQL_SELECT_ALL);
-             ResultSet rs = stmt.executeQuery();) {
+             ResultSet rs = stmt.executeQuery()) {
             while (rs.next()) {
                 Example example = new Example();
                 example.setId(rs.getInt(1));
@@ -47,6 +47,7 @@ public class ExampleDao implements Dao<Integer, Example> {
                 example.setEnglish(rs.getString(4));
                 example.setSound(rs.getString(5));
                 example.setRuleId(rs.getInt(6));
+                example.setRank(rs.getInt(7));
                 list.add(example);
             }
             return list;
@@ -56,18 +57,19 @@ public class ExampleDao implements Dao<Integer, Example> {
     }
 
     @Override
-    public boolean create(Example entity) {
+    public boolean create(Example example) {
         boolean flag = false;
-        try (PreparedStatement stmt = conn.getPreparedStatement(SQL_INSERT_RECORD, Statement.RETURN_GENERATED_KEYS);) {
-            stmt.setInt(1, entity.getWordId());
-            stmt.setString(2, entity.getRussian());
-            stmt.setString(3, entity.getEnglish());
-            stmt.setString(4, entity.getSound());
-            stmt.setInt(5, entity.getRuleId());
+        try (PreparedStatement stmt = conn.getPreparedStatement(SQL_INSERT_RECORD, Statement.RETURN_GENERATED_KEYS)) {
+            stmt.setInt(1, example.getWordId());
+            stmt.setString(2, example.getRussian());
+            stmt.setString(3, example.getEnglish());
+            stmt.setString(4, example.getSound());
+            stmt.setInt(5, example.getRuleId());
+            stmt.setInt(6,example.getRank());
             stmt.execute();
-            try (ResultSet generatedKeys = stmt.getGeneratedKeys();) {
+            try (ResultSet generatedKeys = stmt.getGeneratedKeys()) {
                 if (generatedKeys.next()) {
-                    entity.setId(generatedKeys.getInt(1));
+                    example.setId(generatedKeys.getInt(1));
                 }
             }
             flag = true;
@@ -79,7 +81,7 @@ public class ExampleDao implements Dao<Integer, Example> {
 
     @Override
     public Example getById(Integer id) {
-        try (PreparedStatement stmt = conn.getPreparedStatement(SQL_SELECT_BY_ID);) {
+        try (PreparedStatement stmt = conn.getPreparedStatement(SQL_SELECT_BY_ID)) {
             stmt.setInt(1, id);
             try (ResultSet rs = stmt.executeQuery()) {
                 if (!rs.next()) {
@@ -91,7 +93,8 @@ public class ExampleDao implements Dao<Integer, Example> {
                 example.setRussian(rs.getString(3));
                 example.setEnglish(rs.getString(4));
                 example.setSound(rs.getString(5));
-                example.setId(rs.getInt(6));
+                example.setRuleId(rs.getInt(6));
+                example.setRank(rs.getInt(7));
                 return example;
             }
         } catch (SQLException e) {
@@ -100,15 +103,16 @@ public class ExampleDao implements Dao<Integer, Example> {
     }
 
     @Override
-    public boolean update(Example entity) {
-        boolean flag = false;
-        try (PreparedStatement stmt = conn.getPreparedStatement(SQL_UPDATE_BY_ID);) {
-            stmt.setInt(1, entity.getWordId());
-            stmt.setString(2, entity.getRussian());
-            stmt.setString(3, entity.getEnglish());
-            stmt.setString(4, entity.getSound());
-            stmt.setInt(5, entity.getRuleId());
-            stmt.setInt(6, entity.getId());
+    public boolean update(Example example) {
+        boolean flag;
+        try (PreparedStatement stmt = conn.getPreparedStatement(SQL_UPDATE_BY_ID)) {
+            stmt.setInt(1, example.getWordId());
+            stmt.setString(2, example.getRussian());
+            stmt.setString(3, example.getEnglish());
+            stmt.setString(4, example.getSound());
+            stmt.setInt(5, example.getRuleId());
+            stmt.setInt(6, example.getRank());
+            stmt.setInt(7, example.getId());
             stmt.executeUpdate();
             flag = true;
         } catch (SQLException e) {
@@ -120,7 +124,7 @@ public class ExampleDao implements Dao<Integer, Example> {
     @Override
     public boolean remove(Integer id) {
         boolean flag = false;
-        try (PreparedStatement stmt = conn.getPreparedStatement(SQL_DELETE_BY_ID);) {
+        try (PreparedStatement stmt = conn.getPreparedStatement(SQL_DELETE_BY_ID)) {
             stmt.setInt(1, id);
             stmt.executeUpdate();
             flag = true;
@@ -143,6 +147,7 @@ public class ExampleDao implements Dao<Integer, Example> {
                     example.setEnglish(rs.getString(4));
                     example.setSound(rs.getString(5));
                     example.setRuleId(rs.getInt(6));
+                    example.setRank(rs.getInt(7));
                     result.add(example);
                 }
                 return result;

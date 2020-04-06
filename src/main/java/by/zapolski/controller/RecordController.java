@@ -22,13 +22,22 @@ public class RecordController {
     private RecordDao recordDao;
 
     @GetMapping("/records/{word}")
-    public List<Record> getAllRecordsByWord(@PathVariable String word) {
-        return recordService.getRecordsByWord(word);
+    public List<Record> getAllRecordsByWord(
+            @PathVariable String word,
+            @RequestParam Integer minRank,
+            @RequestParam Integer maxRank
+    ) {
+        return recordService.getRecordsByWord(word, minRank, maxRank);
     }
 
     @GetMapping("/records/query/{query}/{param}")
-    public List<Record> getAllRecordsQueryString(@PathVariable String query, @PathVariable int param) {
-        return recordDao.getRecordsByEnglishValueWithSqlLike(query, param);
+    public List<Record> getAllRecordsQueryString(
+            @PathVariable String query,
+            @PathVariable int param,
+            @RequestParam Integer minRank,
+            @RequestParam Integer maxRank
+    ) {
+        return recordDao.getRecordsByEnglishValueWithSqlLike(query, param, minRank, maxRank);
     }
 
     @PutMapping("/records/{id}")
@@ -48,6 +57,14 @@ public class RecordController {
     @GetMapping("records")
     public ResponseEntity<Set<Record>> getRecordsByIds(@RequestParam int[] ids) {
         return new ResponseEntity<>(recordService.getRecordsByIds(ids), HttpStatus.OK);
+    }
+
+    @GetMapping("records/rank")
+    public ResponseEntity<List<Record>> getRecordsWithRank(
+            @RequestParam Integer minRank,
+            @RequestParam Integer maxRank
+    ) {
+        return new ResponseEntity<>(recordService.getAllRecordsWithRank(minRank,maxRank), HttpStatus.OK);
     }
 
 

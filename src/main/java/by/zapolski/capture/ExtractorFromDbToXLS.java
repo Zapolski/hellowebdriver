@@ -66,7 +66,7 @@ public class ExtractorFromDbToXLS {
     private void writeRecordsInWorkbook(String word, HSSFWorkbook workbook) throws IOException {
         RecordDao recordDao = new RecordDao(connectorDB);
         LOG.log(Level.INFO, "Processing word: [{0}]", word);
-        List<Record> recordsByWord = recordDao.getRecordsByWord(word);
+        List<Record> recordsByWord = recordDao.getRecordsByWord(word, 0, 10000);
         LOG.log(Level.INFO, "Found out {0} records", recordsByWord.size());
         if (!recordsByWord.isEmpty()) {
             Row row;

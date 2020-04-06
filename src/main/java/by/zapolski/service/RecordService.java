@@ -8,5 +8,7 @@ import java.util.Set;
 public interface RecordService {
     Set<Record> getRecordsByIds(int[] ids);
 
-    List<Record> getRecordsByWord(String word);
+    List<Record> getRecordsByWord(String word, Integer minRank, Integer maxRank);
+
+    List<Record> getAllRecordsWithRank(Integer minRank, Integer maxRank);
 }

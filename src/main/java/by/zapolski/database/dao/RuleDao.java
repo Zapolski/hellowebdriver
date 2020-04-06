@@ -45,7 +45,7 @@ public class RuleDao implements Dao<Integer, Rule> {
     public List<Rule> getAll() {
         List<Rule> list = new ArrayList<>();
         try (PreparedStatement stmt = conn.getPreparedStatement(SQL_SELECT_ALL);
-             ResultSet rs = stmt.executeQuery();) {
+             ResultSet rs = stmt.executeQuery()) {
             while (rs.next()) {
                 Rule rule = new Rule(rs.getInt(FIELD_ID), rs.getString(FIELD_VALUE));
                 list.add(rule);
@@ -59,10 +59,10 @@ public class RuleDao implements Dao<Integer, Rule> {
     @Override
     public boolean create(Rule entity) {
         boolean flag = false;
-        try (PreparedStatement stmt = conn.getPreparedStatement(SQL_INSERT_RECORD, Statement.RETURN_GENERATED_KEYS);) {
+        try (PreparedStatement stmt = conn.getPreparedStatement(SQL_INSERT_RECORD, Statement.RETURN_GENERATED_KEYS)) {
             stmt.setString(1, entity.getValue());
             stmt.execute();
-            try (ResultSet generatedKeys = stmt.getGeneratedKeys();) {
+            try (ResultSet generatedKeys = stmt.getGeneratedKeys()) {
                 if (generatedKeys.next()) {
                     entity.setId(generatedKeys.getInt(1));
                 }
@@ -91,7 +91,7 @@ public class RuleDao implements Dao<Integer, Rule> {
     @Override
     public boolean remove(Integer id) {
         boolean flag = false;
-        try (PreparedStatement stmt = conn.getPreparedStatement(SQL_DELETE_BY_ID);) {
+        try (PreparedStatement stmt = conn.getPreparedStatement(SQL_DELETE_BY_ID)) {
             stmt.setInt(1, id);
             stmt.executeUpdate();
             flag = true;
@@ -103,7 +103,7 @@ public class RuleDao implements Dao<Integer, Rule> {
 
     @Override
     public Rule getById(Integer id) {
-        try (PreparedStatement stmt = conn.getPreparedStatement(SQL_SELECT_BY_ID);) {
+        try (PreparedStatement stmt = conn.getPreparedStatement(SQL_SELECT_BY_ID)) {
             stmt.setInt(1, id);
             try (ResultSet rs = stmt.executeQuery()) {
                 if (!rs.next()) {

@@ -27,7 +27,12 @@ public class RecordServiceImpl implements RecordService {
     }
 
     @Override
-    public List<Record> getRecordsByWord(String word) {
-        return recordDao.getRecordsByWord(word);
+    public List<Record> getRecordsByWord(String word, Integer minRank, Integer maxRank) {
+        return recordDao.getRecordsByWord(word, minRank, maxRank);
+    }
+
+    @Override
+    public List<Record> getAllRecordsWithRank(Integer minRank, Integer maxRank) {
+        return recordDao.getAllWithRank(minRank,maxRank);
     }
 }

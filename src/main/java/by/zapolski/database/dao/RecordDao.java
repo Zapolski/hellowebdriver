@@ -18,42 +18,48 @@ import java.util.List;
 @Component
 public class RecordDao {
 
-    private static final String SQL_SELECT_BY_ID = "SELECT example.id, word.value, example.russian, example.english, example.sound, rule.value \n" +
+    private static final String SQL_SELECT_BY_ID = "SELECT example.id, word.value, example.russian, example.english, example.sound, rule.value, example.rank \n" +
             "FROM word\n" +
             "JOIN example ON word.id = example.word_id\n" +
             "JOIN rule ON example.rule_id = rule.id\n" +
             "WHERE example.id = ?;";
 
-    private static final String SQL_SELECT_BY_SOUND_PATH = "SELECT example.id, word.value, example.russian, example.english, example.sound, rule.value \n" +
+    private static final String SQL_SELECT_BY_SOUND_PATH = "SELECT example.id, word.value, example.russian, example.english, example.sound, rule.value, example.rank \n" +
             "FROM word\n" +
             "JOIN example ON word.id = example.word_id\n" +
             "JOIN rule ON example.rule_id = rule.id\n" +
             "WHERE example.sound = ?;";
 
-    private static final String SQL_SELECT_BY_WORD = "SELECT example.id, word.value, example.russian, example.english, example.sound, rule.value \n" +
+    private static final String SQL_SELECT_BY_WORD = "SELECT example.id, word.value, example.russian, example.english, example.sound, rule.value, example.rank\n" +
             "FROM word\n" +
             "JOIN example ON word.id = example.word_id\n" +
             "JOIN rule ON example.rule_id = rule.id\n" +
-            "WHERE word.value = ?\n" +
+            "WHERE word.value = ? and (example.rank between ? and ?)\n" +
             "ORDER BY example.id;";
 
-    private static final String SQL_SELECT_ALL = "SELECT example.id, word.value, example.russian, example.english, example.sound, rule.value \n" +
+    private static final String SQL_SELECT_ALL = "SELECT example.id, word.value, example.russian, example.english, example.sound, rule.value, example.rank \n" +
             "FROM word\n" +
             "JOIN example ON word.id = example.word_id\n" +
             "JOIN rule ON example.rule_id = rule.id;";
 
-    private static final String SQL_SELECT_ALL_WITH_LIKE = "SELECT example.id, word.value, example.russian, example.english, example.sound, rule.value\n" +
+    private static final String SQL_SELECT_ALL_WITH_RANK = "SELECT example.id, word.value, example.russian, example.english, example.sound, rule.value, example.rank \n" +
             "FROM word\n" +
             "JOIN example ON word.id = example.word_id\n" +
             "JOIN rule ON example.rule_id = rule.id\n" +
-            "WHERE example.english ~ ?\n" +
+            "WHERE example.rank between ? and ?\n";
+
+    private static final String SQL_SELECT_ALL_WITH_LIKE = "SELECT example.id, word.value, example.russian, example.english, example.sound, rule.value, example.rank\n" +
+            "FROM word\n" +
+            "JOIN example ON word.id = example.word_id\n" +
+            "JOIN rule ON example.rule_id = rule.id\n" +
+            "WHERE example.english ~ ? and (example.rank between ? and ?)\n" +
             "ORDER BY example.id;";
 
-    private static final String SQL_SELECT_ALL_WITH_ILIKE = "SELECT example.id, word.value, example.russian, example.english, example.sound, rule.value\n" +
+    private static final String SQL_SELECT_ALL_WITH_ILIKE = "SELECT example.id, word.value, example.russian, example.english, example.sound, rule.value, example.rank\n" +
             "FROM word\n" +
             "JOIN example ON word.id = example.word_id\n" +
             "JOIN rule ON example.rule_id = rule.id\n" +
-            "WHERE example.english ~* ?\n" +
+            "WHERE example.english ~* ? and (example.rank between ? and ?)\n" +
             "ORDER BY example.id;";
 
 
@@ -104,6 +110,7 @@ public class RecordDao {
         example.setEnglish(record.getEnglish());
         example.setRussian(record.getRussian());
         example.setSound(record.getSoundPath());
+        example.setRank(record.getRank());
 
         exampleDao.create(example);
         record.setId(example.getId());
@@ -113,7 +120,7 @@ public class RecordDao {
         return true;
     }
 
-    public List<Record> getRecordsByEnglishValueWithSqlLike(String query, int param) {
+    public List<Record> getRecordsByEnglishValueWithSqlLike(String query, int param, Integer minRank, Integer maxRank) {
         query = "\\m" + query + "\\M";
         List<Record> result = new ArrayList<>();
         String sql;
@@ -127,6 +134,8 @@ public class RecordDao {
 
         try (PreparedStatement stmt = connectorDB.getPreparedStatement(sql)) {
             stmt.setString(1, query);
+            stmt.setInt(2, minRank);
+            stmt.setInt(3, maxRank);
             try (ResultSet rs = stmt.executeQuery()) {
                 while (rs.next()) {
                     Record record = new Record();
@@ -136,6 +145,7 @@ public class RecordDao {
                     record.setEnglish(rs.getString(4));
                     record.setSoundPath(rs.getString(5));
                     record.setRule(rs.getString(6));
+                    record.setRank(rs.getInt(7));
                     result.add(record);
                 }
                 return result;
@@ -145,9 +155,12 @@ public class RecordDao {
         }
     }
 
-    public List<Record> getRecordsByWord(String queryWord) {
+    public List<Record> getRecordsByWord(String queryWord, Integer minRank, Integer maxRank) {
         List<Record> result = new ArrayList<>();
         try (PreparedStatement stmt = connectorDB.getPreparedStatement(SQL_SELECT_BY_WORD)) {
+            stmt.setString(1, queryWord);
+            stmt.setInt(2, minRank);
+            stmt.setInt(3, maxRank);
             stmt.setString(1, queryWord);
             try (ResultSet rs = stmt.executeQuery()) {
                 while (rs.next()) {
@@ -158,6 +171,7 @@ public class RecordDao {
                     record.setEnglish(rs.getString(4));
                     record.setSoundPath(rs.getString(5));
                     record.setRule(rs.getString(6));
+                    record.setRank(rs.getInt(7));
                     result.add(record);
                 }
                 return result;
@@ -168,19 +182,20 @@ public class RecordDao {
     }
 
     public Record getRecordsById(int id) {
-        Record result = new Record();
+        Record record = new Record();
         try (PreparedStatement stmt = connectorDB.getPreparedStatement(SQL_SELECT_BY_ID)) {
             stmt.setInt(1, id);
             try (ResultSet rs = stmt.executeQuery()) {
                 while (rs.next()) {
-                    result.setId(rs.getInt(1));
-                    result.setWord(rs.getString(2));
-                    result.setRussian(rs.getString(3));
-                    result.setEnglish(rs.getString(4));
-                    result.setSoundPath(rs.getString(5));
-                    result.setRule(rs.getString(6));
+                    record.setId(rs.getInt(1));
+                    record.setWord(rs.getString(2));
+                    record.setRussian(rs.getString(3));
+                    record.setEnglish(rs.getString(4));
+                    record.setSoundPath(rs.getString(5));
+                    record.setRule(rs.getString(6));
+                    record.setRank(rs.getInt(7));
                 }
-                return result;
+                return record;
             }
         } catch (SQLException e) {
             throw new DaoSystemException("Error during [getRecordsById] from word", e);
@@ -188,19 +203,19 @@ public class RecordDao {
     }
 
     public Record getRecordsBySoundPath(String soundPath) {
-        Record result = new Record();
+        Record record = new Record();
         try (PreparedStatement stmt = connectorDB.getPreparedStatement(SQL_SELECT_BY_SOUND_PATH)) {
             stmt.setString(1, soundPath);
             try (ResultSet rs = stmt.executeQuery()) {
                 while (rs.next()) {
-                    result.setId(rs.getInt(1));
-                    result.setWord(rs.getString(2));
-                    result.setRussian(rs.getString(3));
-                    result.setEnglish(rs.getString(4));
-                    result.setSoundPath(rs.getString(5));
-                    result.setRule(rs.getString(6));
+                    record.setId(rs.getInt(1));
+                    record.setWord(rs.getString(2));
+                    record.setRussian(rs.getString(3));
+                    record.setEnglish(rs.getString(4));
+                    record.setSoundPath(rs.getString(5));
+                    record.setRank(rs.getInt(7));
                 }
-                return result;
+                return record;
             }
         } catch (SQLException e) {
             throw new DaoSystemException("Error during [getRecordsBySoundPath] from word", e);
@@ -219,11 +234,36 @@ public class RecordDao {
                 record.setEnglish(rs.getString(4));
                 record.setSoundPath(rs.getString(5));
                 record.setRule(rs.getString(6));
+                record.setRank(rs.getInt(7));
                 result.add(record);
             }
             return result;
         } catch (SQLException e) {
-            throw new DaoSystemException("Error during [getRecordsByWord] from word", e);
+            throw new DaoSystemException("Error during [getAll] from word", e);
+        }
+    }
+
+    public List<Record> getAllWithRank(Integer minRank, Integer maxRank) {
+        List<Record> result = new ArrayList<>();
+        try (PreparedStatement stmt = connectorDB.getPreparedStatement(SQL_SELECT_ALL_WITH_RANK)) {
+            stmt.setInt(1, minRank);
+            stmt.setInt(2, maxRank);
+            try (ResultSet rs = stmt.executeQuery()) {
+                while (rs.next()) {
+                    Record record = new Record();
+                    record.setId(rs.getInt(1));
+                    record.setWord(rs.getString(2));
+                    record.setRussian(rs.getString(3));
+                    record.setEnglish(rs.getString(4));
+                    record.setSoundPath(rs.getString(5));
+                    record.setRule(rs.getString(6));
+                    record.setRank(rs.getInt(7));
+                    result.add(record);
+                }
+                return result;
+            }
+        } catch (SQLException e) {
+            throw new DaoSystemException("Error during [getAllWithRank] from word", e);
         }
     }
 
@@ -263,6 +303,7 @@ public class RecordDao {
         example.setRussian(record.getRussian());
         example.setSound(record.getSoundPath());
         example.setId(record.getId());
+        example.setRank(record.getRank());
 
         exampleDao.update(example);
         record.setId(example.getId());

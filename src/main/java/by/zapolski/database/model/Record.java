@@ -11,4 +11,5 @@ public class Record extends Entity{
     private String english;
     private String soundPath;
     private String rule;
+    private Integer rank;
 }

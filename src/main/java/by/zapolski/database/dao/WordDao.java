@@ -45,7 +45,7 @@ public class WordDao implements Dao<Integer, Word> {
     public List<Word> getAll() {
         List<Word> list = new ArrayList<>();
         try (PreparedStatement stmt = conn.getPreparedStatement(SQL_SELECT_ALL);
-             ResultSet rs = stmt.executeQuery();) {
+             ResultSet rs = stmt.executeQuery()) {
             while (rs.next()) {
                 Word word = new Word(rs.getInt(FIELD_ID), rs.getString(FIELD_VALUE));
                 list.add(word);
@@ -59,10 +59,10 @@ public class WordDao implements Dao<Integer, Word> {
     @Override
     public boolean create(Word entity) {
         boolean flag = false;
-        try (PreparedStatement stmt = conn.getPreparedStatement(SQL_INSERT_RECORD, Statement.RETURN_GENERATED_KEYS);) {
+        try (PreparedStatement stmt = conn.getPreparedStatement(SQL_INSERT_RECORD, Statement.RETURN_GENERATED_KEYS)) {
             stmt.setString(1, entity.getValue());
             stmt.execute();
-            try (ResultSet generatedKeys = stmt.getGeneratedKeys();) {
+            try (ResultSet generatedKeys = stmt.getGeneratedKeys()) {
                 if (generatedKeys.next()) {
                     entity.setId(generatedKeys.getInt(1));
                 }
@@ -77,7 +77,7 @@ public class WordDao implements Dao<Integer, Word> {
     @Override
     public boolean update(Word entity) {
         boolean flag = false;
-        try (PreparedStatement stmt = conn.getPreparedStatement(SQL_UPDATE_BY_ID);) {
+        try (PreparedStatement stmt = conn.getPreparedStatement(SQL_UPDATE_BY_ID)) {
             stmt.setString(1, entity.getValue());
             stmt.setInt(2, entity.getId());
             stmt.executeUpdate();
@@ -91,7 +91,7 @@ public class WordDao implements Dao<Integer, Word> {
     @Override
     public boolean remove(Integer id) {
         boolean flag = false;
-        try (PreparedStatement stmt = conn.getPreparedStatement(SQL_DELETE_BY_ID);) {
+        try (PreparedStatement stmt = conn.getPreparedStatement(SQL_DELETE_BY_ID)) {
             stmt.setInt(1, id);
             stmt.executeUpdate();
             flag = true;
@@ -103,7 +103,7 @@ public class WordDao implements Dao<Integer, Word> {
 
     @Override
     public Word getById(Integer id) {
-        try (PreparedStatement stmt = conn.getPreparedStatement(SQL_SELECT_BY_ID);) {
+        try (PreparedStatement stmt = conn.getPreparedStatement(SQL_SELECT_BY_ID)) {
             stmt.setInt(1, id);
             try (ResultSet rs = stmt.executeQuery()) {
                 if (!rs.next()) {
