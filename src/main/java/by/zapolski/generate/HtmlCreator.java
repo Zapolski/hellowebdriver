@@ -27,7 +27,7 @@ public class HtmlCreator {
             try (ConnectorDB connectorDB = new ConnectorDB()) {
                 RecordDao recordDao = new RecordDao(connectorDB);
                 for (String word : entry.getValue()) {
-                    recordList.addAll(recordDao.getRecordsByWord(word, 0, 10000));
+                    recordList.addAll(recordDao.getRecordsByWord(word, 0, 60000));
                 }
             }
 

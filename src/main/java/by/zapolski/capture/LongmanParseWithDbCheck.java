@@ -21,6 +21,9 @@ import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.util.List;
 
+import static by.zapolski.capture.CaptureUtils.getSentenceRank;
+import static by.zapolski.capture.CaptureUtils.removeUnsupportedSymbols;
+
 public class LongmanParseWithDbCheck {
 
     private static WebDriver driver;
@@ -47,10 +50,10 @@ public class LongmanParseWithDbCheck {
         ConnectorDB connectorDB = new ConnectorDB();
         WordDao wordDao = new WordDao(connectorDB);
 
-        driver = new ChromeDriver();
         List<String> words = Files.readAllLines(Paths.get(LIST_WORDS));
 
         try {
+            driver = new ChromeDriver();
             for (int i = 0; i < words.size(); i++) {
                 String word = words.get(i).toLowerCase();
                 if (word.isEmpty()) {
@@ -92,11 +95,17 @@ public class LongmanParseWithDbCheck {
                         cell = row.createCell(0);
                         cell.setCellValue(word);
                         cell = row.createCell(1);
-                        cell.setCellValue(russianString);
+                        cell.setCellValue(removeUnsupportedSymbols(russianString));
                         cell = row.createCell(2);
-                        cell.setCellValue(englishString);
+                        cell.setCellValue(removeUnsupportedSymbols(englishString));
                         cell = row.createCell(3);
                         cell.setCellValue(fileName);
+                        cell = row.createCell(4);
+                        cell.setCellValue("");
+                        cell = row.createCell(5);
+                        cell.setCellValue(getSentenceRank(englishString));
+                        cell = row.createCell(6);
+                        cell.setCellValue(0);
                     }
                     System.out.printf("Found [%s] record(s).%n", examplesList.size());
                 } catch (TimeoutException | NoSuchElementException e) {

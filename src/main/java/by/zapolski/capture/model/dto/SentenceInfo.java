@@ -8,5 +8,6 @@ public class SentenceInfo {
     private String[] tokens;
     private String[] tags;
     private String[] lemmas;
+    private Integer[] ranks;
     private Integer rank;
 }

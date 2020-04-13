@@ -1,25 +1,25 @@
 package by.zapolski.capture;
 
-import by.zapolski.capture.model.dto.SentenceInfo;
 import by.zapolski.database.dao.ConnectorDB;
 import by.zapolski.database.dao.RecordDao;
 import by.zapolski.database.dao.WordDao;
 import by.zapolski.database.model.Record;
 import by.zapolski.database.model.Word;
-import com.google.gson.Gson;
 import org.apache.poi.hssf.usermodel.HSSFSheet;
 import org.apache.poi.hssf.usermodel.HSSFWorkbook;
 import org.apache.poi.ss.usermodel.Cell;
 import org.apache.poi.ss.usermodel.Row;
 
-import java.io.*;
-import java.net.HttpURLConnection;
-import java.net.URL;
-import java.nio.charset.StandardCharsets;
+import java.io.File;
+import java.io.FileOutputStream;
+import java.io.IOException;
 import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import java.util.stream.Collectors;
+
+import static by.zapolski.capture.CaptureUtils.getSentenceRank;
+import static by.zapolski.capture.CaptureUtils.removeUnsupportedSymbols;
 
 public class ExtractorFromDbToXLS {
 
@@ -32,7 +32,6 @@ public class ExtractorFromDbToXLS {
         this.connectorDB = connectorDB;
         this.destinationPath = destinationPath;
     }
-
 
     private void extract(List<String> words) throws IOException {
         try (HSSFWorkbook workbook = new HSSFWorkbook()) {
@@ -58,7 +57,6 @@ public class ExtractorFromDbToXLS {
                 workbook.write(out);
             } catch (IOException e) {
                 LOG.log(Level.INFO, "Error during writing xls-file.", e);
-
             }
         }
     }
@@ -66,7 +64,7 @@ public class ExtractorFromDbToXLS {
     private void writeRecordsInWorkbook(String word, HSSFWorkbook workbook) throws IOException {
         RecordDao recordDao = new RecordDao(connectorDB);
         LOG.log(Level.INFO, "Processing word: [{0}]", word);
-        List<Record> recordsByWord = recordDao.getRecordsByWord(word, 0, 10000);
+        List<Record> recordsByWord = recordDao.getRecordsByWord(word, 0, 60000);
         LOG.log(Level.INFO, "Found out {0} records", recordsByWord.size());
         if (!recordsByWord.isEmpty()) {
             Row row;
@@ -92,43 +90,6 @@ public class ExtractorFromDbToXLS {
             }
             LOG.log(Level.INFO, "All records for word [{0}] was extracted", word);
         }
-    }
-
-    private static String removeUnsupportedSymbols(String source) {
-        return source.replaceAll("‘", "'")
-                .replaceAll("’", "'")
-                .replaceAll("\"", "'")
-                .replaceAll("\\(=.*\\)", "");
-    }
-
-    private Integer getSentenceRank(String sentence) throws IOException {
-        URL obj = new URL("http://localhost:8080/sentences/check");
-        HttpURLConnection connection = (HttpURLConnection) obj.openConnection();
-        connection.setRequestMethod("POST");
-        connection.setRequestProperty("Content-Type", "application/json; utf-8");
-        connection.setRequestProperty("Accept", "application/json");
-        connection.setDoOutput(true);
-
-        try (OutputStream os = connection.getOutputStream()) {
-            byte[] input = sentence.getBytes(StandardCharsets.UTF_8);
-            os.write(input, 0, input.length);
-        }
-
-        StringBuilder response = new StringBuilder();
-
-        try (BufferedReader in = new BufferedReader(new InputStreamReader(connection.getInputStream()))) {
-            String inputLine;
-            while ((inputLine = in.readLine()) != null) {
-                response.append(inputLine);
-            }
-        }
-
-        Integer result;
-        Gson g = new Gson();
-        SentenceInfo SentenceInfo = g.fromJson(response.toString(), SentenceInfo.class);
-        result = SentenceInfo.getRank();
-
-        return result;
     }
 
     public static void main(String[] args) throws IOException {
