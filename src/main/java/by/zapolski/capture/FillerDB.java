@@ -16,7 +16,7 @@ import java.util.List;
 public class FillerDB {
 
     private ConnectorDB connectorDB;
-    private static final String EXCEL_FILE = "d:/test/EnglishPhrases/info/current.xls";
+    private static final String EXCEL_FILE = "d:/test/EnglishPhrases/info/backup.xls";
 
     public FillerDB(ConnectorDB connectorDB) {
         this.connectorDB = connectorDB;
@@ -74,8 +74,8 @@ public class FillerDB {
     public static void main(String[] args) throws IOException, SQLException {
         try (ConnectorDB connectorDB = new ConnectorDB()) {
             FillerDB fillerDB = new FillerDB(connectorDB);
-            fillerDB.fillFromExcelFile(EXCEL_FILE);
-            //fillerDB.updateFromExcelFile(EXCEL_FILE);
+            //fillerDB.fillFromExcelFile(EXCEL_FILE);
+            fillerDB.updateFromExcelFile(EXCEL_FILE);
         }
     }
 }

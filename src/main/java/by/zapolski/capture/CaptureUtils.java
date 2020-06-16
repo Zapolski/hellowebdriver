@@ -13,7 +13,7 @@ import java.nio.charset.StandardCharsets;
 
 public class CaptureUtils {
 
-    public static Integer getSentenceRank(String sentence) throws IOException {
+    public static SentenceInfo getSentenceInfo(String sentence) throws IOException {
         URL obj = new URL("http://localhost:8090/sentences/check");
         HttpURLConnection connection = (HttpURLConnection) obj.openConnection();
         connection.setRequestMethod("POST");
@@ -35,12 +35,8 @@ public class CaptureUtils {
             }
         }
 
-        Integer result;
         Gson g = new Gson();
-        SentenceInfo SentenceInfo = g.fromJson(response.toString(), SentenceInfo.class);
-        result = SentenceInfo.getRank();
-
-        return result;
+        return g.fromJson(response.toString(), SentenceInfo.class);
     }
 
     public static String removeUnsupportedSymbols(String source) {

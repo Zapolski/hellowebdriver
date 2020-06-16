@@ -11,8 +11,8 @@ import java.util.List;
 
 public class MergerTxtFiles {
 
-    //private static final String SOURCE_PATH = "d:/Test/EnglishPhrases/info/sets/DB search/";
-    private static final String SOURCE_PATH = "d:/Test/EnglishPhrases/info/sets/Full search/";
+    private static final String SOURCE_PATH = "d:/Test/EnglishPhrases/info/sets/DB search/";
+    //private static final String SOURCE_PATH = "d:/Test/EnglishPhrases/info/sets/Full search/";
 
     public static void main(String[] args) throws Exception {
         System.out.println(String.format("Каталог для обработки: [%s]", SOURCE_PATH));

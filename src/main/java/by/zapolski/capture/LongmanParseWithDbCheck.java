@@ -21,7 +21,7 @@ import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.util.List;
 
-import static by.zapolski.capture.CaptureUtils.getSentenceRank;
+import static by.zapolski.capture.CaptureUtils.getSentenceInfo;
 import static by.zapolski.capture.CaptureUtils.removeUnsupportedSymbols;
 
 public class LongmanParseWithDbCheck {
@@ -103,7 +103,7 @@ public class LongmanParseWithDbCheck {
                         cell = row.createCell(4);
                         cell.setCellValue("");
                         cell = row.createCell(5);
-                        cell.setCellValue(getSentenceRank(englishString));
+                        cell.setCellValue(getSentenceInfo(englishString).getRank());
                         cell = row.createCell(6);
                         cell.setCellValue(0);
                     }

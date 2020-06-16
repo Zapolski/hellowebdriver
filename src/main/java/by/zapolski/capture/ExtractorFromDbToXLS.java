@@ -1,10 +1,9 @@
 package by.zapolski.capture;
 
+import by.zapolski.capture.model.dto.SentenceInfo;
 import by.zapolski.database.dao.ConnectorDB;
 import by.zapolski.database.dao.RecordDao;
-import by.zapolski.database.dao.WordDao;
 import by.zapolski.database.model.Record;
-import by.zapolski.database.model.Word;
 import org.apache.poi.hssf.usermodel.HSSFSheet;
 import org.apache.poi.hssf.usermodel.HSSFWorkbook;
 import org.apache.poi.ss.usermodel.Cell;
@@ -16,9 +15,8 @@ import java.io.IOException;
 import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
-import java.util.stream.Collectors;
 
-import static by.zapolski.capture.CaptureUtils.getSentenceRank;
+import static by.zapolski.capture.CaptureUtils.getSentenceInfo;
 import static by.zapolski.capture.CaptureUtils.removeUnsupportedSymbols;
 
 public class ExtractorFromDbToXLS {
@@ -33,7 +31,7 @@ public class ExtractorFromDbToXLS {
         this.destinationPath = destinationPath;
     }
 
-    private void extract(List<String> words) throws IOException {
+    private void extract(List<Record> records) throws IOException {
         try (HSSFWorkbook workbook = new HSSFWorkbook()) {
             LOG.log(Level.INFO, "Creating xls-file in memory");
             HSSFSheet sheet = workbook.createSheet("From DB");
@@ -48,9 +46,11 @@ public class ExtractorFromDbToXLS {
             row.createCell(5).setCellValue("Rank");
             row.createCell(6).setCellValue("Id");
 
-            for (String word : words) {
-                writeRecordsInWorkbook(word, workbook);
-            }
+            row.createCell(7).setCellValue("Unknown word");
+
+            //for (Record record: records) {
+            writeRecordsInWorkbook(records, workbook);
+            //}
 
             LOG.log(Level.INFO, "Writing filled file on disk, destination file: [{0}]", destinationPath);
             try (FileOutputStream out = new FileOutputStream(new File(destinationPath))) {
@@ -61,17 +61,34 @@ public class ExtractorFromDbToXLS {
         }
     }
 
-    private void writeRecordsInWorkbook(String word, HSSFWorkbook workbook) throws IOException {
-        RecordDao recordDao = new RecordDao(connectorDB);
-        LOG.log(Level.INFO, "Processing word: [{0}]", word);
-        List<Record> recordsByWord = recordDao.getRecordsByWord(word, 0, 60000);
-        LOG.log(Level.INFO, "Found out {0} records", recordsByWord.size());
-        if (!recordsByWord.isEmpty()) {
+    private void writeRecordsInWorkbook(List<Record> records, HSSFWorkbook workbook) throws IOException {
+//        RecordDao recordDao = new RecordDao(connectorDB);
+//        LOG.log(Level.INFO, "Processing word: [{0}]", word);
+//        List<Record> recordsByWord = recordDao.getRecordsByWord(word, 0, 60000);
+//        LOG.log(Level.INFO, "Found out {0} records", recordsByWord.size());
+        if (!records.isEmpty()) {
             Row row;
             Cell cell;
             HSSFSheet sheet = workbook.getSheetAt(0);
             int rowNum = sheet.getLastRowNum() + 1;
-            for (Record record : recordsByWord) {
+            for (Record record : records) {
+                LOG.log(Level.INFO, "Process record id=[{0}]", record.getId());
+                if (record.getRank() != 0) {
+                    continue;
+                }
+
+                SentenceInfo sentenceInfo = getSentenceInfo(record.getEnglish());
+
+                StringBuilder unknownWords = new StringBuilder();
+                for (int i = 0; i < sentenceInfo.getLemmas().length; i++) {
+                    Integer rank = sentenceInfo.getRanks()[i];
+                    if (rank != null && rank == 0) {
+                        unknownWords.append(sentenceInfo.getLemmas()[i]);
+                        unknownWords.append(',');
+                    }
+                }
+
+
                 row = sheet.createRow(rowNum++);
                 cell = row.createCell(0);
                 cell.setCellValue(record.getWord());
@@ -84,20 +101,23 @@ public class ExtractorFromDbToXLS {
                 cell = row.createCell(4);
                 cell.setCellValue(record.getRule());
                 cell = row.createCell(5);
-                cell.setCellValue(getSentenceRank(record.getEnglish()));
+                cell.setCellValue(sentenceInfo.getRank());
                 cell = row.createCell(6);
                 cell.setCellValue(record.getId());
+
+                cell = row.createCell(7);
+                cell.setCellValue(unknownWords.toString());
             }
-            LOG.log(Level.INFO, "All records for word [{0}] was extracted", word);
+//            LOG.log(Level.INFO, "All records for word [{0}] was extracted", word);
         }
     }
 
     public static void main(String[] args) throws IOException {
         try (ConnectorDB connectorDB = new ConnectorDB()) {
             ExtractorFromDbToXLS extractor = new ExtractorFromDbToXLS(connectorDB, "d:/test/EnglishPhrases/info/backup.xls");
-            WordDao wordDao = new WordDao(connectorDB);
-            List<String> words = wordDao.getAll().stream().map(Word::getValue).collect(Collectors.toList());
-            extractor.extract(words);
+            RecordDao recordDao = new RecordDao(connectorDB);
+            List<Record> records = recordDao.getAll();
+            extractor.extract(records);
         }
     }
 
