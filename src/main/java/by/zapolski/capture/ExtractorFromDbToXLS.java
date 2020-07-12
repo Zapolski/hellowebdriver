@@ -73,6 +73,7 @@ public class ExtractorFromDbToXLS {
             int rowNum = sheet.getLastRowNum() + 1;
             for (Record record : records) {
                 LOG.log(Level.INFO, "Process record id=[{0}]", record.getId());
+
                 if (record.getRank() != 0) {
                     continue;
                 }

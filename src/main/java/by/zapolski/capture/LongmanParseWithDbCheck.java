@@ -31,6 +31,7 @@ public class LongmanParseWithDbCheck {
 
     private static By xpathExamples = By.xpath("//*[ (./*[@data-src-mp3]) and contains(@class,'EXAMPLE')]");
     private static By xpathMp3Link = By.xpath("./*[@data-src-mp3]");
+    private static By xpathDefinition = By.xpath("/preceding-sibling::span[@class='DEF']");
 
     private static final String DATABASE_FILE = "d:/Test/EnglishPhrases/info/current.xls";
     private static final String LIST_WORDS = "d:/test/EnglishPhrases/info/current.txt";
